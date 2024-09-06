@@ -3,7 +3,7 @@ description: This repository contains OpenAPI definitions for different system a
 tags:
   - integrio
 apis:
-  - name: Nedap
+  - name: Nedap1
     description: Integrio Nedap API 1.0
     baseUrl: https://api.nedapretail.com/1.0
     properties:
