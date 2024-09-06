@@ -9,8 +9,6 @@ info:
 servers:
   - url: https://api.nedapretail.com
     description: EU production
-  - url: https://api.nedapretail.us
-    description: US production
 tags:
   - name: Approved difference list API
   - name: Article API
