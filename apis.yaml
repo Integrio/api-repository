@@ -8,6 +8,6 @@ apis:
     baseUrl: https://api.nedapretail.com
     properties:
     - type: X-openapi
-      url: ./nedap/nedapidcloud-openapi.yaml
+      url: nedap/nedapidcloud-openapi.yaml
 
     
