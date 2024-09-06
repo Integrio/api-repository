@@ -4,7 +4,7 @@ tags:
   - integrio
 apis:
   - name: Nedap
-    description: Integrio Nedap API
+    description: Integrio Nedap API 1.0
     baseUrl: https://api.nedapretail.com/1.0
     properties:
     - type: X-openapi
