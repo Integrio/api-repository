@@ -5,13 +5,13 @@ tags:
 apis:
   - name: Nedap
     description: Integrio Nedap API
-    baseUrl: https://api.nedapretail.com
+    baseUrl: https://api.nedapretail.com/1.0
     properties:
     - type: X-openapi
       url: nedap/nedapidcloud-openapi.yaml
   - name: Integrio 4Human HRM API
     description: The 4Human API Specification
-    baseUrl: https://api.hrm-4human.com
+    baseUrl: https://api.hrm-4human.com/1.0
     properties:
     - type: X-openapi
       url: https://prod-public-external-api-doc.s3.eu-west-1.amazonaws.com/prod/openapi.yaml
