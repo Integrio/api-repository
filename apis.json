@@ -35,7 +35,7 @@
       {
         "name": "Allianz Credit Cover API",
         "description": "Allianz Credit Cover API",
-        "baseUrl": "https://api.allianz-trade.com/riskinfo/v3",
+        "baseUrl": "https://api.allianz-trade.com",
         "properties": [
           {
             "type": "X-openapi",
