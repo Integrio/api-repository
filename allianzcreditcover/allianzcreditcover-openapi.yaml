@@ -3733,9 +3733,13 @@ components:
         Inactive concerns expired covers.<br/>
         Closed concerns covers cancelled by the policy holder.
       allOf:
-        - $ref: '#/components/schemas/CoreCoverStatusCode'
         - type: string
           enum:
+            - Cover
+            - NoCover
+            - Inactive
+            - Rejected
+            - Closed
             - Partial
             - Pending
             - CheckPolicy
@@ -3777,16 +3781,24 @@ components:
     CreditLimitCoverStatusCode:
       description: CreditLimitCover's status code
       allOf:
-        - $ref: '#/components/schemas/CoreCoverStatusCode'
         - type: string
           enum:
+            - Cover
+            - NoCover
+            - Inactive
+            - Rejected
+            - Closed
             - Partial
     GradePolicyCoverCoverStatusCode:
       description: GradePolicyCover's status code
       allOf:
-        - $ref: '#/components/schemas/CoreCoverStatusCode'
         - type: string
           enum:
+            - Cover
+            - NoCover
+            - Inactive
+            - Rejected
+            - Closed
             - CheckPolicy
     SearchCoverRequestCriteria:
       type: object
