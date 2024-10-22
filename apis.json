@@ -31,6 +31,17 @@
             "url": "https://prod-public-external-api-doc.s3.eu-west-1.amazonaws.com/prod/openapi.yaml"
           }
         ]
+      },
+      {
+        "name": "Allianz Credit Cover API",
+        "description": "Allianz Credit Cover API",
+        "baseUrl": "https://api.allianz-trade.com/riskinfo/v3",
+        "properties": [
+          {
+            "type": "X-openapi",
+            "url": "allianzcreditcover/allianzcreditcover-openapi.yaml"
+          }
+        ]
       }
     ]
   }

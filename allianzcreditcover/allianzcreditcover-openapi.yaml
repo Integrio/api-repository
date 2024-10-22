@@ -1,0 +1,4136 @@
+openapi: 3.0.0
+x-project-id: Info Risk
+info:
+  title: COVERS
+  description: API suite to manage covers and grades. V3 is the latest version. Use version selector for V2.
+  contact:
+    name: Allianz Trade API Support
+    email: API@allianz-trade.com
+  version: 3.17.0
+servers:
+- url: https://api.allianz-trade.com/riskinfo/v3
+  description: Production
+- url: https://api-services.uat.1placedessaisons.com/uatm/riskinfo/v3
+  description: Test  
+paths:
+  /covers:
+    post:
+      summary: >-
+        Submit a cover request and return a jobId.
+      security:
+        - ApiKeyAuth: []
+      operationId: submitCoverRequest
+      x-um-actions: write_clr, write_dlr, write_gr, write_unnamedcover
+      responses:
+        '202':
+          description: >-
+            Request acknowledged. Use the job id to get the status of
+            this request.
+          content:
+            application/json:
+              schema:
+                type: string
+                description: The jobId response
+                example: "f089dba-2f6e-44cc-939f-6fdf52e58b9a"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: User has not been authenticated, a valid token is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: User has not been granted access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Payload Too Large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          headers:
+            traceparent:
+              description: Cross service Correlation Identifier
+              schema:
+                type: string
+          description: Technical error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '504':
+          description: Gateway Time-out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        credentials: '${apigw_role_arn}'
+        uri: 'arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.covers_function_name}/invocations'
+      parameters:
+        - name: XX-Act-As
+          description: Internal use only. Current user acts as another user. External users should not use this parameter in the header.
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: traceparent
+          description: Cross service Correlation Identifier
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: tracestate
+          description: only for internal. Conveys additional vendor-specific trace identification information across different distributed tracing systems.
+          in: header
+          required: false
+          schema:
+            type: string
+          example: 'EH0231=00f067aa0ba902b7,EH0302=t61rcWkgMzE'
+        - name: Custom-Webhook
+          in: header
+          required: false
+          description: 'The callback information to be stored by the server to call back the client when the response will be available. There are 2 types of notifications: technical and functional. The technical notification is sent when the job has been treated. The functional notification (extendedNotification) is optional (false by default) and sent when a decision has been taken. This endpoint must be in <font color="red"><b>HTTPS</font></b><br><b>This object is stringified and base 64 encoded to be passed in the header</b>. External URLs must be provided to be whitelisted. The callback information provides the jobId to be matched with your request.'
+          schema:
+            $ref: '#/components/schemas/ExtendedWebhook'
+      requestBody:
+        description: If a request comment is set, it will cause a pending response.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoverRequestCoreInfo'
+        required: true
+      tags:
+        - covers
+      callbacks:
+        Cover:
+          '{$request.header.Custom-Webhook/callbackUrl}':
+            post:
+              parameters:
+                - name: Job-Id
+                  in: header
+                  required: true
+                  description: The Job-Id allows the client to match his request with this result sent on the call back URL.
+                  schema:
+                    type: string
+              requestBody:   # Contents of the callback message
+                description: The business object or the error sent back to the client.
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      oneOf:
+                        - $ref: '#/components/schemas/Cover'
+                        - $ref: '#/components/schemas/Error'
+                        - $ref: '#/components/schemas/CoverRequest'
+              responses:
+                "200":
+                  description: Your request has been successfully taken into account by the receiver
+                "4XX":
+                  description: Bad request both in the body and in the header objects
+                  content:
+                    "*/*":
+                      schema:
+                        $ref: "#/components/schemas/Error"
+                "5XX":
+                  description: Technical error
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Error'
+  /covers/{coverId}:
+    get:
+      tags:
+        - covers
+      summary: Get cover details.
+      operationId: getcover
+      x-um-actions: read_clr, read_dlr, read_gr, read_unnamedcover
+      parameters:
+        - name: traceparent
+          in: header
+          description: Cross service Correlation Identifier
+          required: false
+          schema:
+            type: string
+        - name: XX-Act-As
+          description: Internal use only. Current user acts as another user. External users should not use this parameter in the header.
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: coverId
+          in: path
+          description: The cover identifier.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: |
+             operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cover'
+        "401":
+          description: User has not been authenticated, a valid token is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "403":
+          description: User has not been granted access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "504":
+          description: Gateway Time-out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Technical error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - ApiKeyAuth: []
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        credentials: '${apigw_role_arn}'
+        uri: 'arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.covers_function_name}/invocations'
+    patch:
+      summary: >-
+        Submit a cover to update and return a jobId.
+      description:
+        You cannot patch a cover if the attribute coverGroup.coverGroupRoleCode is "Joint".
+      security:
+        - ApiKeyAuth: []
+      operationId: updateCover
+      x-um-actions: write_clr, write_dlr, write_gr, write_unnamedcover
+      responses:
+        '202':
+          description: >-
+            Request acknowledged. Use the job id to get the status of
+            this request.
+          content:
+            application/json:
+              schema:
+                type: string
+                description: The jobId response
+                example: "f089dba-2f6e-44cc-939f-6fdf52e58b9a"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: User has not been authenticated, a valid token is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: User has not been granted access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Payload Too Large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          headers:
+            traceparent:
+              description: Cross service Correlation Identifier
+              schema:
+                type: string
+          description: Technical error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '504':
+          description: Gateway Time-out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        credentials: '${apigw_role_arn}'
+        uri: 'arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.covers_function_name}/invocations'
+      parameters:
+        - name: XX-Act-As
+          description: Internal use only. Current user acts as another user. External users should not use this parameter in the header.
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: traceparent
+          description: Cross service Correlation Identifier
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: tracestate
+          description: Conveys additional vendor-specific trace identification information across different distributed tracing systems.
+          in: header
+          required: false
+          schema:
+            type: string
+          example: 'EH0231=00f067aa0ba902b7,EH0302=t61rcWkgMzE'
+        - name: Custom-Webhook
+          in: header
+          required: false
+          description: The callback information to be stored by the server to call back the client when the response will be available. This endpoint must be in <font color="red"><b>HTTPS</font></b><br><b>This object is stringified and base 64 encoded to be passed in the header.</b>. External URLs must be provided to be whitelisted. The callback information provides the jobId to be matched with your request.
+          schema:
+            $ref: '#/components/schemas/Webhook'
+        - name: coverId
+          in: path
+          description: The cover identifier
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: |
+         This object contains elements that can be modified and allows an amount reduction.\n
+         Each field can be patched individually.\n
+         You cannot patch all of them at once due to a backend restriction.\n
+         You can patch at the same time ONLY the following fields: creditLimitAmount and customerCompanyReference.\n\n
+         You can patch isStrategic only for: Primary / Cap / CapPlus / PreCheck.\n
+         You can patch creditLimitAmount only for: Primary / Cap / CapPlus / PreCheck.\n
+         You can patch currentRenewalSituation only for: GradePolicyCoverBasic/ GradePolicyCoverDeluxe / GradeCover.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoverUpdate'
+        required: true
+      tags:
+        - covers
+      callbacks:
+        Cover:
+          '{$request.header.Custom-Webhook/callbackUrl}':
+            post:
+              parameters:
+                - name: Job-Id
+                  in: header
+                  required: true
+                  description: The Job-Id allows the client to match his request with this result sent on the call back URL.
+                  schema:
+                    type: string
+              requestBody:   # Contents of the callback message
+                description: The business object or the error sent back to the client.
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      oneOf:
+                        - $ref: '#/components/schemas/Cover'
+                        - $ref: '#/components/schemas/Error'
+              responses:
+                "200":
+                  description: Your request has been successfully taken into account by the receiver
+                "4XX":
+                  description: Bad request both in the body and in the header objects
+                  content:
+                    "*/*":
+                      schema:
+                        $ref: "#/components/schemas/Error"
+                "5XX":
+                  description: Technical error
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Error'
+  /covers/search:
+    post:
+      tags:
+        - covers
+      summary: Search for covers.
+      operationId: searchCovers
+      x-um-actions: read_clr, read_dlr, read_gr, read_unnamedcover
+      parameters:
+        - name: traceparent
+          in: header
+          description: Cross service Correlation Identifier
+          explode: false
+          schema:
+            type: string
+        - name: XX-Act-As
+          description: Internal use only. Current user acts as another user. External users should not use this parameter in the header.
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchCoverCriteria'
+        required: true
+      responses:
+        "200":
+          description: '|
+             operation. The response is sorted by default with lastUpdateDate attribute.
+                        <br/> The response can be sorted using the following attributes: [policyId, totalAmount, lastUpdateDate, requestDate, expiryDate, totalAmountCurrencyCode,
+                        companyName, creditLimitEndDate, creditLimitIncreaseEndDate, gradePolicyCoverEndDate, gradeCoverEndDate]
+                        <br/> The response is paginated as defined in the [API Guidelines Pagination]: By default, page size is 100.
+                        <br/> The response is sorted as defined in the [API Guidelines Sorting].'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchCover'
+        "206":
+          description: 'Partial Content. The response is sorted by default with lastUpdateDate attribute.
+                        <br/> The response can be sorted using the following attributes: [policyId, totalAmount, lastUpdateDate, requestDate, expiryDate, totalAmountCurrencyCode,
+                        companyName, creditLimitEndDate, creditLimitIncreaseEndDate, gradePolicyCoverEndDate, gradeCoverEndDate]
+                        <br/> The response is paginated as defined in the [API Guidelines Pagination]: By default, page size is 100.
+                        <br/> The response is sorted as defined in the [API Guidelines Sorting].'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SearchCover'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: User has not been authenticated, a valid token is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "403":
+          description: User has not been granted access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "504":
+          description: Gateway Time-out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Technical error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - ApiKeyAuth: []
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        credentials: '${apigw_role_arn}'
+        uri: 'arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.covers_function_name}/invocations'
+  /covers/{coverId}/{requestTypeCode}:
+    delete:
+      summary: >-
+        Submit a coverId to cancel and return a jobId.
+      description:
+        You cannot cancel a cover if the attribute coverGroup.coverGroupRoleCode is "Joint".
+      security:
+        - ApiKeyAuth: []
+      operationId: submitCoverDelete
+      x-um-actions: write_clr, write_dlr, write_gr, write_unnamedcover
+      responses:
+        '202':
+          description: >-
+            Request acknowledged. Use the jobId to get request status.
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "9f089dba-2f6e-44cc-939f-6fdf52e58b9a"
+        '401':
+          description: User has not been authenticated, a valid token is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: User has not been granted access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Payload Too Large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          headers:
+            traceparent:
+              description: Cross service Correlation Identifier
+              schema:
+                type: string
+          description: Technical error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '504':
+          description: Gateway Time-out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        credentials: '${apigw_role_arn}'
+        uri: 'arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.covers_function_name}/invocations'
+      parameters:
+        - name: XX-Act-As
+          description: Internal use only. Current user acts as another user. External users should not use this parameter in the header.
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: traceparent
+          description: Cross service Correlation Identifier
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: tracestate
+          description: only for internal. Conveys additional vendor-specific trace identification information across different distributed tracing systems.
+          in: header
+          required: false
+          schema:
+            type: string
+          example: 'EH0231=00f067aa0ba902b7,EH0302=t61rcWkgMzE'
+        - name: coverId
+          in: path
+          description: The cover identifier
+          required: true
+          schema:
+            type: string
+        - name: requestTypeCode
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/RequestTypeCode'
+          description: >-
+            Request type code:
+              * `Primary` - Primary cover.
+              * `Cap` - Top up cover compliant with a Primary cover greater than zero.
+              * `CapPlus` - Top up cover compliant with a Primary and Cap cover equal to zero.
+              * `GradePolicyCoverBasic` - Binary cover derived from the Buyer grade. Can have only two possible values Cover and NoCover as cover status.
+              * `GradePolicyCoverDeluxe` - Cover derived from the Buyer grade and policy.
+              * `GradeCover` - Cover in amount derived from the Buyer grade only.
+
+              Values below concerns technical policies
+
+              * `PreCheck` - Draft of a Primary cover valid until policy signature.
+              * `PreCheckCap` - Draft of a Cap cover valid until policy signature.
+              * `PreCheckCapPlus` - Draft of a Cap Plus cover valid until policy signature.
+              * `PreCheckCapOrCapPlus` - Draft of a Cap or a Cap Plus cover valid until policy signature.
+              * `PreCheckGradeCover` - Draft of a GradeCover cover valid until policy signature.
+              * `PreCheckGradePolicyCoverBasic` - Draft of a GradePolicyCoverBasic cover valid until policy signature.
+              * `PreCheckGradePolicyCoverDeluxe` - Draft of a GradePolicyCoverDeluxe cover valid until policy signature.
+              * `CapOrCapPlus` - Can be a Cap or a CapPlus request.
+        - name: Custom-Webhook
+          in: header
+          required: false
+          description: The callback information to be stored by the server to call back the client when the response will be available. This endpoint must be in <font color="red"><b>HTTPS</font></b><br><b>This object is stringified and base 64 encoded to be passed in the header.</b>. External URLs must be provided to be whitelisted. The callback information provides the jobId to be matched with your request.
+          schema:
+            $ref: "#/components/schemas/Webhook"
+      tags:
+        - covers
+      callbacks:
+        Cover:
+          '{$request.header.Custom-Webhook/callbackUrl}':
+            post:
+              parameters:
+                - name: Job-Id
+                  in: header
+                  required: true
+                  description: The Job-Id allows the client to match his request with this result sent on the call back URL.
+                  schema:
+                    type: string
+              requestBody:   # Contents of the callback message
+                description: The business object or the error sent back to the client.
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      oneOf:
+                        - $ref: '#/components/schemas/Cover'
+                        - $ref: '#/components/schemas/Error'
+              responses:
+                "200":
+                  description: Your request has been successfully taken into account by the receiver
+                "4XX":
+                  description: Bad request both in the body and in the header objects
+                  content:
+                    "*/*":
+                      schema:
+                        $ref: "#/components/schemas/Error"
+                "5XX":
+                  description: Technical error
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Error'
+  /covers/create:
+    post:
+      summary: >-
+        Submit a cover request list and return a jobId list.
+      security:
+        - ApiKeyAuth: []
+      operationId: submitCoverRequestBulk
+      x-um-actions: write_clr, write_dlr, write_gr, write_unnamedcover
+      responses:
+        '202':
+          description: >-
+            Request acknowledged. Use the list of job ids to get the status of
+            this request.
+          content:
+            application/json:
+              schema:
+                type: array
+                description: The list of Job ids
+                items:
+                  type: string
+                  description: The jobId response
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: User has not been authenticated, a valid token is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: User has not been granted access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Payload Too Large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          headers:
+            traceparent:
+              description: Cross service Correlation Identifier
+              schema:
+                type: string
+          description: Technical error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '504':
+          description: Gateway Time-out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        credentials: '${apigw_role_arn}'
+        uri: 'arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.cover_requests_function_name}/invocations'
+      parameters:
+        - name: XX-Act-As
+          description: Internal use only. Current user acts as another user. External users should not use this parameter in the header.
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: traceparent
+          description: Cross service Correlation Identifier
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: tracestate
+          description: Conveys additional vendor-specific trace identification information across different distributed tracing systems.
+          in: header
+          required: false
+          schema:
+            type: string
+          example: 'EH0231=00f067aa0ba902b7,EH0302=t61rcWkgMzE'
+        - name: Custom-Webhook
+          in: header
+          required: false
+          description: 'The callback information to be stored by the server to call back the client when the response will be available. There are 2 types of notifications: technical and functional. The technical notification is sent when the job has been treated. The functional notification (extendedNotification) is optional (false by default) and sent when a decision has been taken. This endpoint must be in <font color="red"><b>HTTPS</font></b><br><b>This object is stringified and base 64 encoded to be passed in the header</b>. External URLs must be provided to be whitelisted. The callback information provides the jobId to be matched with your request.'
+          schema:
+            $ref: '#/components/schemas/ExtendedWebhook'
+      requestBody:
+        description: If a request comment is set, it will cause a pending response.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CoverRequestCoreInfoBulk'
+        required: true
+      tags:
+        - bulks
+      callbacks:
+        Cover:
+          '{$request.header.Custom-Webhook/callbackUrl}':
+            post:
+              parameters:
+                - name: Job-Id
+                  in: header
+                  required: true
+                  description: The Job-Id allows the client to match his request with this result sent on the call back URL.
+                  schema:
+                    type: string
+                - name: Parent-Job-Id
+                  in: header
+                  required: true
+                  description: The Parent-Job-Id allows the client to do a unique match with all requests done through a bulk endpoint.
+                  schema:
+                    type: string
+              requestBody:   # Contents of the callback message
+                description: The business object or the error sent back to the client.
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      oneOf:
+                        - $ref: '#/components/schemas/Cover'
+                        - $ref: '#/components/schemas/Error'
+                        - $ref: '#/components/schemas/CoverRequest'
+              responses:
+                "200":
+                  description: Your request has been successfully taken into account by the receiver
+                "4XX":
+                  description: Bad request both in the body and in the header objects
+                  content:
+                    "*/*":
+                      schema:
+                        $ref: "#/components/schemas/Error"
+                "5XX":
+                  description: Technical error
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Error'
+  /covers/list:
+    post:
+      tags:
+        - bulks
+      summary: Return a list of Cover details
+      operationId: getCoversExportBulk
+      x-um-actions: read_clr, read_dlr, read_gr, read_unnamedcover
+      parameters:
+        - name: traceparent
+          in: header
+          description: Cross service Correlation Identifier
+          required: false
+          schema:
+            type: string
+        - name: XX-Act-As
+          description: Internal use only. Current user acts as another user. External users should not use this parameter in the header.
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        description: CoverId array list.
+        content:
+          application/json:
+            schema:
+              type: array
+              description: coverIds
+              items:
+                type: string
+              minItems: 1
+              uniqueItems: true
+        required: true
+      responses:
+        '200':
+          description: '|
+             operation.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cover'
+        '206':
+          description: 'Partial Content.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cover'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: User has not been authenticated, a valid token is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: User has not been granted access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Payload Too Large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Technical error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '504':
+          description: Gateway Time-out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - ApiKeyAuth: []
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        credentials: '${apigw_role_arn}'
+        uri: 'arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.covers_function_name}/invocations'
+  /covers/update:
+    post:
+      summary: >-
+        Submit a list of covers to update and return a jobId list.
+      security:
+        - ApiKeyAuth: []
+      operationId: updateCoverBulk
+      x-um-actions: write_clr, write_dlr, write_gr, write_unnamedcover
+      responses:
+        '202':
+          description: >-
+            Request acknowledged. Use the list of job ids to get the status of
+            this request.
+          content:
+            application/json:
+              schema:
+                type: array
+                description: The list of Job ids
+                items:
+                  type: string
+                  description: The jobId response
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: User has not been authenticated, a valid token is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: User has not been granted access.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Payload Too Large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          headers:
+            traceparent:
+              description: Cross service Correlation Identifier
+              schema:
+                type: string
+          description: Technical error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '504':
+          description: Gateway Time-out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        credentials: '${apigw_role_arn}'
+        uri: 'arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.covers_function_name}/invocations'
+      parameters:
+        - name: XX-Act-As
+          description: Internal use only. Current user acts as another user. External users should not use this parameter in the header.
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: traceparent
+          description: Cross service Correlation Identifier
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: tracestate
+          description: only for internal. Conveys additional vendor-specific trace identification information across different distributed tracing systems.
+          in: header
+          required: false
+          schema:
+            type: string
+          example: 'EH0231=00f067aa0ba902b7,EH0302=t61rcWkgMzE'
+        - name: Custom-Webhook
+          in: header
+          required: false
+          description: The callback information to be stored by the server to call back the client when the response will be available. This endpoint must be in <font color="red"><b>HTTPS</font></b><br><b>This object is stringified and base 64 encoded to be passed in the header.</b>. External URLs must be provided to be whitelisted. The callback information provides the jobId to be matched with your request.
+          schema:
+            $ref: '#/components/schemas/Webhook'
+      requestBody:
+        description: This object contains elements that can be modified and allows an amount reduction. You can patch either creditLimitAmount / customerCompanyReference or isStrategic. You cannot patch all of them at once due to a backend restriction.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CoverUpdateBulk'
+        required: true
+      tags:
+        - bulks
+      callbacks:
+        Cover:
+          '{$request.header.Custom-Webhook/callbackUrl}':
+            post:
+              parameters:
+                - name: Job-Id
+                  in: header
+                  required: true
+                  description: The Job-Id allows the client to match his request with this result sent on the call back URL.
+                  schema:
+                    type: string
+                - name: Parent-Job-Id
+                  in: header
+                  required: true
+                  description: The Parent-Job-Id allows the client to do a unique match with all requests done through a bulk endpoint.
+                  schema:
+                    type: string
+              requestBody:   # Contents of the callback message
+                description: The business object or the error sent back to the client.
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      oneOf:
+                        - $ref: '#/components/schemas/Cover'
+                        - $ref: '#/components/schemas/Error'
+              responses:
+                "200":
+                  description: Your request has been successfully taken into account by the receiver
+                "4XX":
+                  description: Bad request both in the body and in the header objects
+                  content:
+                    "*/*":
+                      schema:
+                        $ref: "#/components/schemas/Error"
+                "5XX":
+                  description: Technical error
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Error'
+  /covers/cancel:
+    post:
+      summary: >-
+        Submit a coverId list to cancel and return a jobId list.
+      security:
+        - ApiKeyAuth: []
+      operationId: submitCoverDeleteBulk
+      x-um-actions: write_clr, write_dlr, write_gr, write_unnamedcover
+      responses:
+        '202':
+          description: >-
+            Request acknowledged. Use the jobId list to get request status.
+          content:
+            application/json:
+              schema:
+                type: array
+                description: Job Ids list.
+                items:
+                  type: string
+                  example: "9f089dba-2f6e-44cc-939f-6fdf52e58b9a"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: User has not been authenticated, a valid token is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: User has not been granted access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Payload Too Large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          headers:
+            traceparent:
+              description: Cross service Correlation Identifier
+              schema:
+                type: string
+          description: Technical error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '504':
+          description: Gateway Time-out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        credentials: '${apigw_role_arn}'
+        uri: 'arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.covers_function_name}/invocations'
+      parameters:
+        - name: XX-Act-As
+          description: Internal use only. Current user acts as another user. External users should not use this parameter in the header.
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: traceparent
+          description: Cross service Correlation Identifier
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: tracestate
+          description: only for internal. Conveys additional vendor-specific trace identification information across different distributed tracing systems.
+          in: header
+          required: false
+          schema:
+            type: string
+          example: 'EH0231=00f067aa0ba902b7,EH0302=t61rcWkgMzE'
+        - name: Custom-Webhook
+          in: header
+          required: false
+          description: The callback information to be stored by the server to call back the client when the response will be available. This endpoint must be in <font color="red"><b>HTTPS</font></b><br><b>This object is stringified and base 64 encoded to be passed in the header.</b>. External URLs must be provided to be whitelisted. The callback information provides the jobId to be matched with your request.
+          schema:
+            $ref: "#/components/schemas/Webhook"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                required:
+                  - requestTypeCode
+                  - coverId
+                properties:
+                  requestTypeCode:
+                    $ref: '#/components/schemas/RequestTypeCode'
+                  coverId:
+                    type: string
+                    description: Original coverId that this CoverRequest was linked to.
+        required: true
+      tags:
+        - bulks
+      callbacks:
+        Cover:
+          '{$request.header.Custom-Webhook/callbackUrl}':
+            post:
+              parameters:
+                - name: Job-Id
+                  in: header
+                  required: true
+                  description: The Job-Id allows the client to match his request with this result sent on the call back URL.
+                  schema:
+                    type: string
+                - name: Parent-Job-Id
+                  in: header
+                  required: true
+                  description: The Parent-Job-Id allows the client to do a unique match with all requests done through a bulk endpoint.
+                  schema:
+                    type: string
+              requestBody:   # Contents of the callback message
+                description: The business object or the error sent back to the client.
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      oneOf:
+                        - $ref: '#/components/schemas/Cover'
+                        - $ref: '#/components/schemas/Error'
+              responses:
+                "200":
+                  description: Your request has been successfully taken into account by the receiver
+                "4XX":
+                  description: Bad request both in the body and in the header objects
+                  content:
+                    "*/*":
+                      schema:
+                        $ref: "#/components/schemas/Error"
+                "5XX":
+                  description: Technical error
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Error'
+  /coverRequests/{requestId}:
+    get:
+      tags:
+        - cover requests
+      summary: Get cover request details.
+      operationId: getcoverrequest
+      x-um-actions: read_clr, read_dlr, read_gr, read_unnamedcover
+      parameters:
+        - name: XX-Act-As
+          description: Internal use only. Current user acts as another user. External users should not use this parameter in the header.
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: traceparent
+          in: header
+          description: Cross service Correlation Identifier
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: requestId
+          in: path
+          description: The request identifier
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: |
+             operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoverRequest'
+        "401":
+          description: User has not been authenticated, a valid token is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "403":
+          description: User has not been granted access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "504":
+          description: Gateway Time-out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Technical error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - ApiKeyAuth: []
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        credentials: '${apigw_role_arn}'
+        uri: 'arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.cover_requests_function_name}/invocations'
+    delete:
+      summary: >-
+        Submit a coverRequestId to cancel and return a jobId.
+      description:
+        You can only delete a coverRequest with the status `InProgress` or `AwaitingUserValidation`
+      security:
+        - ApiKeyAuth: []
+      operationId: submitCoverRequestDelete
+      x-um-actions: write_clr, write_dlr, write_gr, write_unnamedcover
+      responses:
+        '202':
+          description: >-
+            Request acknowledged. Use the jobId to get request status.
+          content:
+            application/json:
+              schema:
+                type: string
+                description: The jobId response
+                example: "9f089dba-2f6e-44cc-939f-6fdf52e58b9a"
+        '401':
+          description: User has not been authenticated, a valid token is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: User has not been granted access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          headers:
+            traceparent:
+              description: Cross service Correlation Identifier
+              schema:
+                type: string
+          description: Technical error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '504':
+          description: Gateway Time-out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        credentials: '${apigw_role_arn}'
+        uri: 'arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.cover_requests_function_name}/invocations'
+      parameters:
+        - name: XX-Act-As
+          description: Internal use only. Current user acts as another user. External users should not use this parameter in the header.
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: traceparent
+          description: Cross service Correlation Identifier
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: tracestate
+          description: only for internal. Conveys additional vendor-specific trace identification information across different distributed tracing systems.
+          in: header
+          required: false
+          schema:
+            type: string
+          example: 'EH0231=00f067aa0ba902b7,EH0302=t61rcWkgMzE'
+        - name: requestId
+          in: path
+          description: The cover request identifier
+          required: true
+          schema:
+            type: string
+        - name: Custom-Webhook
+          in: header
+          required: false
+          description: The callback information to be stored by the server to call back the client when the response will be available. This endpoint must be in <font color="red"><b>HTTPS</font></b><br><b>This object is stringified and base 64 encoded to be passed in the header.</b>. External URLs must be provided to be whitelisted. The callback information provides the jobId to be matched with your request.
+          schema:
+            $ref: "#/components/schemas/Webhook"
+      tags:
+        - cover requests
+      callbacks:
+        Cover Request:
+          '{$request.header.Custom-Webhook/callbackUrl}':
+            post:
+              parameters:
+                - name: Job-Id
+                  in: header
+                  required: true
+                  description: The Job-Id allows the client to match his request with this result sent on the call back URL.
+                  schema:
+                    type: string
+              requestBody:   # Contents of the callback message
+                description: The business object or the error sent back to the client.
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      oneOf:
+                        - $ref: '#/components/schemas/CoverRequest'
+                        - $ref: '#/components/schemas/Error'
+              responses:
+                "200":
+                  description: Your request has been successfully taken into account by the receiver
+                "4XX":
+                  description: Bad request both in the body and in the header objects
+                  content:
+                    "*/*":
+                      schema:
+                        $ref: "#/components/schemas/Error"
+                "5XX":
+                  description: Technical error
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '#/components/schemas/Error'
+  /coverRequests/search:
+    post:
+      tags:
+        - cover requests
+      summary: Search for cover requests.
+      operationId: searchcoverrequest
+      x-um-actions: read_clr, read_dlr, read_gr, read_unnamedcover
+      parameters:
+        - name: XX-Act-As
+          description: Internal use only. Current user acts as another user. External users should not use this parameter in the header.
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: traceparent
+          in: header
+          description: Cross service Correlation Identifier
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchCoverRequestCriteria'
+        required: true
+      responses:
+        "200":
+          description: '|
+             operation. The response is sorted by default with creationDate attribute.
+                        <br/> The response can be sorted using the following attributes: [requestedAmount, creationDate].
+                        <br/> The response is paginated as defined in the [API Guidelines Pagination]: By default, page size is 100.
+                        <br/> The response is sorted as defined in the [API Guidelines Sorting].'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CoverRequest'
+        "206":
+          description: 'Partial Content. The response is sorted by default with creationDate attribute.
+                        <br/> The response can be sorted using the following attributes: [requestedAmount, creationDate].
+                        <br/> The response is paginated as defined in the [API Guidelines Pagination]: By default, page size is 100.
+                        <br/> The response is sorted as defined in the [API Guidelines Sorting].'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CoverRequest'
+        "401":
+          description: User has not been authenticated, a valid token is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "403":
+          description: User has not been granted access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "504":
+          description: Gateway Time-out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Technical error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - ApiKeyAuth: []
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        credentials: '${apigw_role_arn}'
+        uri: 'arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.cover_requests_function_name}/invocations'
+  /coverRequests/list:
+    post:
+      tags:
+        - bulks
+      summary: Return a list of CoverRequest details
+      operationId: getCoverRequestsExportBulk
+      x-um-actions: read_clr, read_dlr, read_gr, read_unnamedcover
+      parameters:
+        - name: traceparent
+          in: header
+          description: Cross service Correlation Identifier
+          required: false
+          schema:
+            type: string
+        - name: XX-Act-As
+          description: Internal use only. Current user acts as another user. External users should not use this parameter in the header.
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        description: RequestId array list.
+        content:
+          application/json:
+            schema:
+              description: requestIds
+              type: array
+              items:
+                type: string
+              minItems: 1
+              uniqueItems: true
+        required: true
+      responses:
+        '200':
+          description: '|
+             operation.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CoverRequest'
+        '206':
+          description: 'Partial Content.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CoverRequest'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: User has not been authenticated, a valid token is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: User has not been granted access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '413':
+          description: Payload Too Large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Technical error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '504':
+          description: Gateway Time-out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - ApiKeyAuth: []
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        credentials: '${apigw_role_arn}'
+        uri: 'arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.cover_requests_function_name}/invocations'
+  /covers/{coverId}/history/{coverTypeCode}:
+    get:
+      tags:
+        - covers
+      summary: Get cover history details for a specific coverTypeCode.
+      operationId: getCoversHistory
+      x-um-actions: read_clr, read_dlr, read_gr, read_unnamedcover
+      parameters:
+        - name: traceparent
+          in: header
+          description: Cross service Correlation Identifier
+          required: false
+          schema:
+            type: string
+        - name: XX-Act-As
+          description: Internal use only. Current user acts as another user. External users should not use this parameter in the header.
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: coverId
+          in: path
+          description: The cover identifier.
+          required: true
+          schema:
+            type: string
+        - name: coverTypeCode
+          in: path
+          description: |
+            The cover type code on which the history will be returned.
+             * `creditLimit`: A history of an aggregation of several creditLimits (primary, permanent, temporary, cap or cap plus) for a couple policy/buyer will be returned
+             * `gradePolicyCoverBasic`: A history of gradePolicyCover will be returned
+             * `gradePolicyCoverDeluxe`: A history of gradePolicyCover will be returned
+             * `gradeCover`: A history of gradeCover will be returned
+          required: true
+          schema:
+            $ref: '#/components/schemas/CoverHistoryTypeCode'
+      responses:
+        "200":
+          description: |
+             operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoverHistory'
+        "401":
+          description: User has not been authenticated, a valid token is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "403":
+          description: User has not been granted access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "504":
+          description: Gateway Time-out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Technical error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - ApiKeyAuth: []
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        credentials: '${apigw_role_arn}'
+        uri: 'arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.covers_history_function_name}/invocations'
+  /covers/isAlive:
+    get:
+      summary: Returns healthcheck information
+      description: Returns healthcheck information for the current resource.
+      security:
+        - ApiKeyAuth: []
+      operationId: coversEndPointHealthCheck
+      responses:
+        '200':
+          description: Health check result code.
+          headers:
+            traceparent:
+              description: Cross service Correlation Identifier
+              schema:
+                type: string
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    minLength: 2
+                    maxLength: 7
+                    enum:
+                      - "OK"
+                      - "WARNING"
+                      - "DOWN"
+        '500':
+          headers:
+            traceparent:
+              description: Cross service Correlation Identifier
+              schema:
+                type: string
+          description: Technical error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        credentials: '${apigw_role_arn}'
+        uri: 'arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.covers_function_name}/invocations'
+      tags:
+        - covers
+  /coverRequests/isAlive:
+    get:
+      summary: Returns healthcheck information
+      description: Returns healthcheck information for the current resource.
+      security:
+        - ApiKeyAuth: []
+      operationId: coverRequestsEndPointHealthCheck
+      responses:
+        '200':
+          description: Health check result code.
+          headers:
+            traceparent:
+              description: Cross service Correlation Identifier
+              schema:
+                type: string
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    minLength: 2
+                    maxLength: 7
+                    enum:
+                      - "OK"
+                      - "WARNING"
+                      - "DOWN"
+        '500':
+          headers:
+            traceparent:
+              description: Cross service Correlation Identifier
+              schema:
+                type: string
+          description: Technical error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        credentials: '${apigw_role_arn}'
+        uri: 'arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.cover_requests_function_name}/invocations'
+      tags:
+        - cover requests
+  /covers/pending/search:
+    post:
+      summary: Return all unitary pending jobs related to covers.
+      parameters:
+        - name: traceparent
+          in: header
+          description: Cross service Correlation Identifier
+          explode: false
+          schema:
+            type: string
+        - name: XX-Act-As
+          description: Internal use only. Current user act as another user.
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchPendingCriteria'
+        required: true
+      security:
+        - ApiKeyAuth: []
+      operationId: getPendingCover
+      x-um-actions: read_clr, read_dlr, read_gr, read_unnamedcover
+      responses:
+        "200":
+          description: |
+            Successful operation. The response is sorted by default with creationTimestamp attribute.\n
+            The response is paginated as defined in the [API Guidelines Pagination]: By default, page size is 200.
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PendingCover'
+        "206":
+          description: |
+            Partial Content. The response is sorted by default with creationTimestamp attribute.\n
+            The response is paginated as defined in the [API Guidelines Pagination]: By default, page size is 200.
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PendingCover'
+        '403':
+          description: Access has not been granted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: User has not been authenticated, a valid token is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          headers:
+            traceparent:
+              description: Cross service Correlation Identifier
+              schema:
+                type: string
+          description: Technical error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '504':
+          description: Gateway Time-out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        credentials: '${apigw_role_arn}'
+        uri: 'arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.jobs_function_name}/invocations'
+      tags:
+        - covers
+  /coverRequests/pending/search:
+    post:
+      summary: Return all unitary pending jobs related to coverRequests.
+      parameters:
+        - name: traceparent
+          in: header
+          description: Cross service Correlation Identifier
+          explode: false
+          schema:
+            type: string
+        - name: XX-Act-As
+          description: Internal use only. Current user act as another user.
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchPendingCriteria'
+        required: true
+      security:
+        - ApiKeyAuth: []
+      operationId: getPendingCoverRequest
+      x-um-actions: read_clr, read_dlr, read_gr, read_unnamedcover
+      responses:
+        '200':
+          description: |
+             operation. The response is sorted by default with creationTimestamp attribute.\n
+              The response is paginated as defined in the [API Guidelines Pagination]: By default, page size is 200.
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PendingCoverRequest'
+        '206':
+          description: |
+            Partial Content. The response is sorted by default with creationTimestamp attribute.\n
+            The response is paginated as defined in the [API Guidelines Pagination]: By default, page size is 200.
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PendingCoverRequest'
+        '403':
+          description: Access has not been granted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: User has not been authenticated, a valid token is required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          headers:
+            traceparent:
+              description: Cross service Correlation Identifier
+              schema:
+                type: string
+          description: Technical error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '504':
+          description: Gateway Time-out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        credentials: '${apigw_role_arn}'
+        uri: 'arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${account_id}:function:$${stageVariables.jobs_function_name}/invocations'
+      tags:
+        - cover requests
+components:
+  schemas:
+    Webhook:
+      type: object
+      description: The callback information to be stored by the server to call back the client when the response will be available. This endpoint must be in <font color="red"><b>HTTPS</font></b><br><b>This object is stringified and base 64 encoded to be passed in the header</b>. External URLs must be provided to be whitelisted. The callback information provides the jobId to be matched with your request.
+      required:
+        - callbackUrl
+      properties:
+        callbackUrl:
+          type: string
+          description: The https url on which the server is going to POST back results once it is ready
+          format: uri
+          pattern: "^https://"
+          example: https://client_url.com/Webhook
+        timeToLive:
+          description: The maximum time, expressed in hours, for which server will retry results delivery with an exponential back off if Client is not joinable
+          type: integer
+          example : 24
+          maximum: 72
+    ExtendedWebhook:
+      description: 'The callback information to be stored by the server to call back the client when the response will be available. There are 2 types of notifications: technical and functional. The technical notification is sent when the job has been treated. The functional notification (extendedNotification) is optional (false by default) and sent when a decision has been taken. This endpoint must be in <font color="red"><b>HTTPS</font></b><br><b>This object is stringified and base 64 encoded to be passed in the header</b>. External URLs must be provided to be whitelisted. The callback information provides the jobId to be matched with your request.'
+      allOf:
+        - $ref: '#/components/schemas/Webhook'
+      type: object
+      properties:
+        extendedNotification:
+          type: boolean
+          description: Specify if the user wants to receive a functionnal notification.
+          default: false
+    Error:
+      type: object
+      description: Error message and related error detail(s) which caused the error to occur.
+      required:
+        - errorCode
+        - debugId
+        - message
+      properties:
+        errorType:
+          type: string
+          description: The error type. Indicates if the problem is within the user's request (a Functional Error) or if it is rather a Technical Error
+        errorCode:
+          type: string
+          description: Unique error code for the error.
+        errorDetails:
+          type: array
+          description: An array that contains individual instance(s) of the error
+            with specifics such as the following. (Only for status code 4xx)
+          items:
+            $ref: '#/components/schemas/ErrorDetails'
+        debugId:
+          type: string
+          description: A unique error identifier generated on the server-side and
+            logged for correlation purposes.
+        message:
+          type: string
+          description: Error message description.
+    CoverDetailsFilters:
+      type: object
+      x-audience: MyEH
+      properties:
+        statusCodes:
+          type: array
+          description: Filter covers based on the statusCode of the different types of detailed covers.
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/CreditLimitCoverStatusCode'
+              - $ref: '#/components/schemas/GradePolicyCoverCoverStatusCode'
+              - $ref: '#/components/schemas/CoreCoverStatusCode'
+          uniqueItems: true
+        minStartDate:
+          type: string
+          description: To be used with maxStartDate to bound results. Format yyyy-MM-dd.
+          format: date
+        maxStartDate:
+          type: string
+          description: To be used with minStartDate to bound results. Format yyyy-MM-dd.
+          format: date
+        minEndDate:
+          type: string
+          description: To be used with maxEndDate to bound results. Format yyyy-MM-dd.
+          format: date
+        maxEndDate:
+          type: string
+          description: To be used with minEndDate to bound results. Format yyyy-MM-dd.
+          format: date
+        minRequestDate:
+          type: string
+          description: To be used with maxRequestDate to bound results. Format yyyy-MM-dd.
+          format: date
+        maxRequestDate:
+          type: string
+          description: To be used with minRequestDate to bound results. Format yyyy-MM-dd.
+          format: date
+        minLastUpdateDate:
+          type: string
+          description: To be used with maxLastUpdateDate to bound results. Format yyyy-MM-dd.
+          format: date
+        maxLastUpdateDate:
+          type: string
+          description: To be used with minLastUpdateDate to bound results. Format yyyy-MM-dd.
+          format: date
+        minResponseDate:
+          type: string
+          description: To be used with maxResponseDate to bound results. Format yyyy-MM-dd.
+          format: date
+        maxResponseDate:
+          type: string
+          description: To be used with minResponseDate to bound results. Format yyyy-MM-dd.
+          format: date
+      description: Object containing all the possible filters on CreditLimit, GradePolicyCover and GradeCover.
+    CreditLimitPolicyHolderAlertDetailsFilters:
+      type: object
+      x-audience: MyEH
+      properties:
+        minGenerationDate:
+          type: string
+          description: To be used with maxGenerationDate to bound results. Format yyyy-MM-dd.
+          format: date
+        maxGenerationDate:
+          type: string
+          description: To be used with minGenerationDate to bound results. Format yyyy-MM-dd.
+          format: date
+        isActive:
+          type: boolean
+          description: Policy holder alert is active or not for CreditLimits
+      description: Object containing all the possible filters on PolicyHolderAlert only for CreditLimits.
+    Policy:
+      required:
+        - businessUnitCode
+        - policyId
+      type: object
+      properties:
+        businessUnitCode:
+          maxLength: 4
+          type: string
+          description: Policy Business Unit Code.
+        policyId:
+          maxLength: 10
+          type: string
+          description: Policy identifier.
+        extensionId:
+          maxLength: 5
+          type: string
+          description: Extension identifier.
+      description: Policy identifier for current cover. Should always be the primary
+        cover's policy value for Cap & CapPlus cases.
+    CoverGroup:
+      type: object
+      description: Cover Group.
+      required:
+        - coverGroupId
+      properties:
+        coverGroupId:
+          type: string
+          description: The cover group identifier
+        coverGroupRoleCode:
+          description: role of member for a given group, only 1 HeadGroup or 1 HeadKontor is defined per CoverGroup
+          allOf:
+            - $ref: '#/components/schemas/CoverGroupRoleCode'
+    CoverRequest:
+      required:
+        - requestId
+        - creationDate
+      allOf:
+        - $ref: '#/components/schemas/CoverRequestCoreInfo'
+      type: object
+      properties:
+        coverId:
+          type: string
+          description: Original coverId that this CoverRequest was linked to.
+        requestId:
+          type: string
+          description: The request identifier. First char is reserved for source definition.
+        requestStatusTrackerCode:
+          type: string
+          description: tracking info related to the request.
+          enum:
+            - CountryNotCovered
+            - BuyerResearch
+            - InformationGathering
+            - DecisionMaking
+        requestStatusCode:
+          type: string
+          description: underwriting status of the request
+          enum:
+            - Answered
+            - InProgress
+            - Rejected
+            - Cancelled
+            - Abandoned
+            - AwaitingUserValidation
+            - Terminated
+            - Undefined
+        requestStatusMotiveCode:
+          type: string
+          description: underwriting motive describing the current status of the request.
+          enum:
+            - AmountTooLow
+            - Appeal
+            - AwaitingGrade
+            - AwaitingInformationQuery
+            - AwaitingInformationReport
+            - AwaitingUserResponse
+            - BuyerExplicitelyNotCapCovered
+            - CompanyExplicitelyNotCovered
+            - CompanyInactive
+            - CompanyNotFound
+            - CoverNotFound
+            - CurrencyInconsitency
+            - DuplicateRequest
+            - ExistingCoverInconistency
+            - FailedInformationQuery
+            - FollowingPolicyTransfer
+            - FollowingEndUserError
+            - FollowingInsuredRequest
+            - FollowingBrokerRequest
+            - FollowingNewLimit
+            - FollowingCancellation
+            - FollowingCompanyError
+            - IndividualNotCovered
+            - InteractiveDialogAbandonByUser
+            - InteractiveDialogFullConfirmedByUser
+            - InteractiveDialogTemporaryAgreedByUser
+            - LegalFormNotCovered
+            - MassiveBatchCancellation
+            - NonCoveredCountry
+            - PolicySuspended
+            - PolicyTerminated
+            - PublicBuyerNotCovered
+            - RefusedByUser
+            - RequestImpossibleActiveLimit
+            - RequestImpossibleBelowInForceLmit
+            - RequestIRejectedReplacedByZeroLimit
+            - RequestRejectedApplyForLimit
+            - RequestRejectedReplacedByLimit
+            - ReturnToInsured
+            - SelfCoverForbidden
+            - TermsOfPaymentInconsistent
+            - TradeSectorNotCovered
+            - Undefined
+            - UserRights
+        contactId:
+          type: string
+          description: The issuer of the request.
+        creationDate:
+          type: string
+          description: Cover request creation date. Format yyyy-MM-dd.
+          format: date
+        creationTime:
+          type: string
+          description: Cover request creation time. Format HH:MM:SS.
+          format: time
+        companyName:
+          type: string
+          description: Buyer company name.
+        lastUpdateDate:
+          type: string
+          description: Request last update date. Format yyyy-MM-dd.
+          format: date
+        lastUpdateTime:
+          type: string
+          description: Request last update time. Format HH:MM:SS.
+          format: time
+        rejectionReason:
+          description: additional information that AZ Trade can give to a policy holder targeting a rejected request. Helps policy holder to craft a future correct request.
+          allOf:
+            - $ref: '#/components/schemas/RejectionReason'
+        mediaDeliverySourceCode:
+          type: string
+          description: Media under which the request entered the cover system.
+          enum:
+            - Other
+            - Upload
+            - Email
+            - FormerOnline
+            - DirectLine
+            - Fax
+            - Phone
+            - Mail
+            - MyEH
+            - SmartLink
+            - ExternalPlatform
+      description: Request made by an issuer asking a specific AZ Trade product for a defined cover.
+    RejectionReason:
+      type: object
+      properties:
+        isBuyerIdRequired:
+          type: boolean
+          description: if defined, the policy holder has to fill the buyer id for his / her request to be processed.
+        isBuyerNameRequired:
+          type: boolean
+          description: if defined, the policy holder has to fill the buyer name for his / her request to be processed.
+        isBuyerAddressRequired:
+          type: boolean
+          description: if defined, the policy holder has to fill the buyer address for his / her request to be processed.
+        isBuyerPhoneNumberRequired:
+          type: boolean
+          description: if defined, the policy holder has to fill the buyer phone number for his / her request to be processed.
+        isBuyerTradeSectorRequired:
+          type: boolean
+          description: if defined, the policy holder has to fill the buyer trade sector for his / her request to be processed.
+        isBuyerLegalFormRequired:
+          type: boolean
+          description: if defined, the policy holder has to fill the buyer legal form for his / her request to be processed.
+        isBuyerBankReferencesInfoRequired:
+          type: boolean
+          description: if defined, the policy holder has to fill the buyer bank references info for his / her request to be processed.
+        comment:
+          type: string
+          description: free text to describe lacking info on buyer.
+        matchingCompanyIds:
+          type: array
+          items:
+            type: string
+          description: possible matches found by AZ Trade for buyer identification.
+      description: additional information that AZ Trade can give to a policy holder targeting a rejected request. Helps policy holder to craft a future correct request.
+    CoverUpdate:
+      type: object
+      required:
+        - requestTypeCode
+      properties:
+        requestTypeCode:
+          description: Request type code
+          allOf:
+            - $ref: '#/components/schemas/RequestTypeCode'
+        customerCompanyReference:
+          maxLength: 20
+          type: string
+          description: Customer's internal reference on this buyer.
+        isStrategic:
+          type: boolean
+          description: Cover is strategic or not for client.
+        creditLimitAmount:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          description: an amount between 0 and current Amount (reduction)
+        currentRenewalSituation:
+          type: string
+          description: current renewal status
+          enum:
+            - willNotBeRenewed
+            - willBeRenewed
+      description: Request made by an issuer asking to update a specific Cover.
+    CoverUpdateBulk:
+      type: object
+      properties:
+        coverId:
+          type: string
+          description: Original coverId that this CoverRequest was linked to.
+      description: object containing the modifiable attributes of a cover
+      allOf:
+        - $ref: '#/components/schemas/CoverUpdate'
+    CoverRequestCoreInfo:
+      required:
+        - requestTypeCode
+        - policy
+      type: object
+      properties:
+        requestTypeCode:
+          description: Request Type Code
+          allOf:
+            - $ref: '#/components/schemas/RequestTypeCode'
+        policy:
+          description: Policy identifier.
+          allOf:
+            - $ref: '#/components/schemas/Policy'
+        creditLimitDetails:
+          description: Specifies the requested amount by the policy holder before the underwriting process (it only applies to creditLimits).
+          allOf:
+            - $ref: '#/components/schemas/CoverRequestDetails'
+        companyId:
+          type: string
+          description: Buyer company identifier.
+        unidentifiedCompany:
+          description: main information about a company that that does not have an internal id (unidentified)
+          allOf:
+            - $ref: '#/components/schemas/UnidentifiedCompany'
+        expiryDate:
+          type: string
+          description: Mandatory for temporary covers. Format yyyy-MM-dd.
+          format: date
+        isRequestUrgent:
+          type: boolean
+          description: May trigger an extra cost.
+        requestDate:
+          type: string
+          description: Request creation date. Must be in the past or equal to the currentDate. Format yyyy-MM-dd.
+          format: date
+          writeOnly: true
+        customerCompanyReference:
+          maxLength: 20
+          type: string
+          description: Customer's internal reference on this buyer.
+        comment:
+          type: string
+          description: Comment added to the request. Will trigger manual handling.
+        brokerAppealCode:
+          type: string
+          description: In order to know if the request has been made with broker appeal
+          enum:
+            - With
+            - Without
+            - Undefined
+      description: Request made by an issuer asking to create a Cover.
+    CoverRequestCoreInfoBulk:
+      required:
+        - requestTypeCode
+        - policy
+      type: object
+      properties:
+        requestTypeCode:
+          description: Request type code
+          allOf:
+            - $ref: '#/components/schemas/RequestTypeCode'
+        policy:
+          description: Policy identifier.
+          allOf:
+            - $ref: '#/components/schemas/Policy'
+        companyId:
+          type: string
+          description: Buyer company identifier. this attribute takes precedence of companyIdentifier.
+        companyIdentifier:
+          description: identifies the company against ledger matching systems. Should be used instead of companyId if it's not known
+          allOf:
+            - $ref: '#/components/schemas/CompanyIdentifier'
+        creditLimitDetails:
+          description: Specifies the requested amount by the policy holder before the underwriting process (it only applies to creditLimits).
+          allOf:
+            - $ref: '#/components/schemas/CoverRequestDetails'
+        expiryDate:
+          type: string
+          description: Mandatory for temporary covers. Format yyyy-MM-dd.
+          format: date
+        isRequestUrgent:
+          type: boolean
+          description: May trigger an extra cost.
+        requestDate:
+          type: string
+          description: Request creation date. Must be in the past or equal to the currentDate. Format yyyy-MM-dd.
+          format: date
+          writeOnly: true
+        customerCompanyReference:
+          maxLength: 20
+          type: string
+          description: Customer's internal reference on this buyer.
+        comment:
+          type: string
+          description: Comment added to the request. Will trigger manual handling.
+        brokerAppealCode:
+          type: string
+          description: In order to know if the request has been made with broker appeal. This property is only available for privedged users
+          enum:
+            - With
+            - Without
+            - Undefined
+      description: Request made by an issuer asking to create a specific Cover.
+    CompanyIdentifier:
+      type: object
+      description: the object can be used to identify the company against ledger matching systems. Should be used instead of companyId if it's not known. See the following
+        company Identifier Types on <a href="https://confluence.eulerhermes.com/pages/viewpage.action?pageId=48942921">[Reference
+        Company Identifier API]</a>.
+      properties:
+        idTypeCode:
+          type: string
+          description: id that can be used to identify this company against ledger matching systems. Has to be used with idValue parameter.
+          example: SIREN
+        idValue:
+          type: string
+          description: value that can be used to identify this company against ledger matching systems. Has to be used with idTypeCode parameter.
+        countryCode:
+          type: string
+          description: ISO 3166-1 alpha-2 country Codes.
+          x-code-table: https://api.allianz-trade.com/v1/countries
+          example: FR
+    CoverCoreInfo:
+      required:
+        - coverId
+        - policy
+      type: object
+      properties:
+        coverId:
+          description: cover unique identifier
+          type: string
+        coverStatusCode:
+          description: Cover status code
+          allOf:
+            - $ref: '#/components/schemas/CoverStatusCode'
+        policy:
+          description: Policy identifier.
+          allOf:
+            - $ref: '#/components/schemas/Policy'
+        coverGroup:
+          description: Cover Group.
+          allOf:
+            - $ref: '#/components/schemas/CoverGroup'
+        startDate:
+          type: string
+          description: Decision effective start date. Format yyyy-MM-dd.
+          format: date
+          x-ref-resource: referential/Cover
+        endDate:
+          type: string
+          description: Decision end date. Format yyyy-MM-dd.
+          format: date
+          x-ref-resource: referential/Cover
+        responseDate:
+          type: string
+          description: Cover reponse date. Format yyyy-MM-dd.
+          format: date
+          x-ref-resource: referential/Cover
+        companyId:
+          type: string
+          description: Buyer company identifier.
+        totalAmount:
+          type: integer
+          description: |-
+            <ul>
+              <li>The aggregated total is the value of the decision amount of the primary + the decision amount of the temporary (if not expired, according the endDate)
+            + CAP/CAP+ + GradePolicyCover amount</li>
+              <li>If coexistence between creditLimit and gradeCover , only consider creditLimit amounts</li>
+              <li>If various currencies, do not aggregate amounts</li>
+            </ul>
+          x-ref-resource: referential/Cover
+        totalAmountCurrencyCode:
+          type: string
+          description: Total amount currency code.
+          x-ref-resource: referential/Cover
+          x-code-table: https://api.allianz-trade.com/v1/currencies
+        customerCompanyReferences:
+          type: array
+          description: Company's Internal references in the insured customer system.
+          items:
+            type: string
+          x-ref-resource: referential/Cover
+        strategicCover:
+          description: Client strategic flag (only applies to CreditLimit cover type)
+          allOf:
+            - $ref: '#/components/schemas/StrategicCover'
+        pendingRequests:
+          type: array
+          description: Pending requests on policy/companyId couple.
+          items:
+            type: object
+            properties:
+              requestId:
+                type: string
+                description: The request identifier. First char is reserved for source definition.
+      description: Common properties of the different types of covers.
+    Cover:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CoverCoreInfo'
+        - type: object
+          properties:
+            creditLimitsAggregation:
+              description: Aggregation of several creditLimits (primary, permanent, temporary, cap or cap plus) for a couple policy/buyer
+              allOf:
+                - $ref: '#/components/schemas/CreditLimitsAggregation'
+            gradePolicyCover:
+              description: Detailed Information about the GradePolicyCover
+              allOf:
+                - $ref: '#/components/schemas/GradePolicyCover'
+            gradeCover:
+              description: Detailed Information about the DLR
+              allOf:
+                - $ref: '#/components/schemas/GradeCover'
+      description: "Global cover which is the aggregation of several individual covers, for a policy holder on a Buyer (defined or unknown). Aggregation rules : https://confluence.eulerhermes.com/display/IAD/Cover+V3%3A+aggregation+rules"
+    SearchCoverCriteria:
+      type: object
+      description: Contains all the search criteria / filters at the aggregated level
+      properties:
+        policies:
+          type: array
+          description: 'The user can set a list of policies on which to retrieve all pending requests'
+          items:
+            $ref: '#/components/schemas/Policy'
+        coverTypeCodes:
+          type: array
+          description: Cover type
+          items:
+            $ref: '#/components/schemas/CoverTypeCode'
+          uniqueItems: true
+        coverSubTypeCodes:
+          type: array
+          description: Filter covers based on the cover type code
+          items:
+            $ref: '#/components/schemas/CoverSubTypeCode'
+          uniqueItems: true
+        coverStatusCodes:
+          type: array
+          description: Filter covers based on the coverStatusCode
+          items:
+            $ref: '#/components/schemas/CoverStatusCode'
+          uniqueItems: true
+        coverGroupRoleCodes:
+          type: array
+          description: Filter covers based on the coverGroupRoleCode
+          items:
+            $ref: '#/components/schemas/CoverGroupRoleCode'
+        creditLimitFilters:
+          allOf:
+            - $ref: '#/components/schemas/CoverDetailsFilters'
+            - properties:
+                hasTemporaryIncrease:
+                  type: boolean
+                  description: Is valued to true if at least one of the Primary or the Top-up has a temporary with an amount > 0 and isExpired is false
+                minIncreaseEndDate:
+                  type: string
+                  description: To be used with maxIncreaseEndDate to bound results. Format yyyy-MM-dd.
+                  format: date
+                maxIncreaseEndDate:
+                  type: string
+                  description: To be used with minIncreaseEndDate to bound results. Format yyyy-MM-dd.
+                  format: date
+                policyHolderAlertFilters:
+                  x-audience: MyEH
+                  description: Contains all possible filters on PolicyHolderAlert (only applies to CreditLimits)
+                  allOf:
+                    - $ref: '#/components/schemas/CreditLimitPolicyHolderAlertDetailsFilters'
+          description: Object containing all the possible filters on CreditLimit.
+        gradePolicyCoverFilters:
+          description: Object containing all the possible filters on gradePolicy.
+          allOf:
+            - $ref: '#/components/schemas/CoverDetailsFilters'
+            - properties:
+                minResponseDate:
+                  type: string
+                  description: To be used with maxResponseDate to bound results. Format yyyy-MM-dd.
+                  format: date
+                maxResponseDate:
+                  type: string
+                  description: To be used with minResponseDate to bound results. Format yyyy-MM-dd.
+                  format: date
+                gradeCodes:
+                  type: array
+                  description: An array of grade codes. If the user wants to get grades from 3 to 5, he has to pass this array [03,04,05]
+                  uniqueItems: true
+                  minItems: 1
+                  maxItems: 14
+                  items:
+                    type: string
+        gradeCoverFilters:
+          description: Object containing all the possible filters on gradeCover.
+          allOf:
+            - $ref: '#/components/schemas/CoverDetailsFilters'
+            - properties:
+                minResponseDate:
+                  type: string
+                  description: To be used with maxResponseDate to bound results. Format yyyy-MM-dd.
+                  format: date
+                maxResponseDate:
+                  type: string
+                  description: To be used with minResponseDate to bound results. Format yyyy-MM-dd.
+                  format: date
+        companyIds:
+          type: array
+          description: A list of buyer company identifiers. Companies wrongly identified are ignored. <br> This attribute takes precedence over _companyId_ (in case both of them are informed).
+          minItems: 1
+          items:
+            type: string
+            description: Buyer Company identifier
+        companyId:
+          deprecated: true
+          type: string
+          description: Buyer company identifier. Deprecated. You should inform the attribute _companyIds_ instead.
+        companyName:
+          type: string
+          description: Buyer company exact name or a part of it.
+        companyCountryCode:
+          type: string
+          description: Buyer company country code.
+        isStrategic:
+          type: boolean
+          description: Cover is strategic or not for client.
+        customerCompanyReference:
+          maxLength: 20
+          type: string
+          description: Customer's internal reference on this buyer.
+        currentRenewalSituations:
+          type: array
+          description: current renewal status
+          items:
+            type: string
+            enum:
+              - willNotBeRenewed
+              - willBeRenewed
+              - notRenewable
+        minTotalAmount:
+          type: integer
+          description: |-
+            <ul>
+              <li>To be used with maxTotalAmount.</li>
+              <li>The aggregated total is the value of the decision amount of the primary + the decision amount of the temporary (if not expired)
+            + CAP/CAP+ + GradePolicyCover amount</li>
+              <li>If coexistence between creditLimit and gradeCover , only consider creditLimit amounts</li>
+              <li>If various currencies, do not aggregate amounts</li>
+            </ul>.
+        maxTotalAmount:
+          type: integer
+          description: |-
+            <ul>
+              <li>To be used with minTotalAmount.</li>
+              <li>The aggregated total is the value of the decision amount of the primary + the decision amount of the temporary (if not expired)
+            + CAP/CAP+ + GradePolicyCover amount</li>
+              <li>If coexistence between creditLimit and gradeCover , only consider creditLimit amounts</li>
+              <li>If various currencies, do not aggregate amounts</li>
+            </ul>.
+        totalAmountCurrencyCode:
+          type: string
+          description: Total amount currency code.
+          x-code-table: https://api.allianz-trade.com/v1/currencies
+        minStartDate:
+          type: string
+          description: To be used with maxStartDate to bound results. Format yyyy-MM-dd. Each type of cover
+            has a decision date. In case of several individual covers aggregated, the
+            decision date which is displayed on the root is the most recent one. Most recent decision date between
+            CreditLimit, GradeCover and GradePolicyCover.
+            (In case of creditLimit, most recent decision date between  primary and CAP/CAP+)
+          format: date
+        maxStartDate:
+          type: string
+          description: To be used with minStartDate to bound results. Format yyyy-MM-dd. Each type of cover
+            has a decision date. In case of several individual covers aggregated, the
+            decision date which is displayed on the root is the most recent one. Most recent decision date between
+            CreditLimit, GradeCover and GradePolicyCover.
+            (In case of creditLimit, most recent decision date between  primary and CAP/CAP+)
+          format: date
+        minEndDate:
+          type: string
+          description: |-
+            Concerns expired or terminated covers. To be used with maxEndDate to bound results.<br/>
+            Format yyyy-MM-dd. Each type of cover has a decision date. In case of several individual covers aggregated, the decision date which is displayed on the root is the most recent one.<br/>
+            Most recent decision date between CreditLimit, GradeCover and GradePolicyCover. (In case of creditLimit, most recent decision date between primary and CAP/CAP+)
+          format: date
+        maxEndDate:
+          type: string
+          description: To be used with minEndDate to bound results. Format yyyy-MM-dd. Each type of cover has
+            a decision date. In case of several individual covers aggregated, the decision
+            date which is displayed on the root is the most recent one. Most recent decision date between
+            CreditLimit, GradeCover and GradePolicyCover.
+            (In case of creditLimit, most recent decision date between  primary and CAP/CAP+)
+          format: date
+        startRequestDate:
+          type: string
+          description: To be used with endRequestDate to bound results. Format yyyy-MM-dd
+            Must be less or equal to endRequestDate. In case of several individual covers aggregated, the request
+            date which is displayed on the root is the most recent one. Most recent request date between
+            CreditLimit, GradeCover and GradePolicyCover.
+            (In case of creditLimit, most recent request date between primary and CAP/CAP+)
+          format: date
+        endRequestDate:
+          type: string
+          description: To be used with startRequestDate to bound results. Format yyyy-MM-dd
+            Must be greater or equal to startRequestDate. In case of several individual covers aggregated, the request
+            date which is displayed on the root is the most recent one. Most recent request date between
+            CreditLimit, GradeCover and GradePolicyCover.
+            (In case of creditLimit, most recent request date between  primary and CAP/CAP+)
+          format: date
+        minLastUpdateDate:
+          type: string
+          description: To be used with minLastUpdateDate to bound results. Format yyyy-MM-dd. Each type of cover has a
+            decision date that is updated when the decision changes, it is specified in the attribute lastUpdateDate in
+            each cover type.
+            In case of several individual covers aggregated, the last update date which is displayed on the root is
+            the most recent update date between CreditLimit, GradeCover, GradePolicyCover.
+            (In case of creditLimit, most recent decision update date between primary and CAP/CAP+)
+          format: date
+        maxLastUpdateDate:
+          type: string
+          description: To be used with minLastUpdateDate to bound results. Format yyyy-MM-dd. Each type of cover has a
+            decision date that is updated when the decision changes, it is specified in the attribute lastUpdateDate in
+            each cover type.
+            In case of several individual covers aggregated, the last update date which is displayed on the root is
+            the most recent update date between CreditLimit, GradeCover, GradePolicyCover.
+            (In case of creditLimit, most recent decision update date between primary and CAP/CAP+)
+          format: date
+        minResponseDate:
+          type: string
+          description: To be used with maxResponseDate to bound results. Format yyyy-MM-dd. Each type of cover has a
+            response date, it is specified in the attribute responseDate in
+            each cover type.
+            In case of several individual covers aggregated, the response date which is displayed on the root is
+            the most recent reponse date between CreditLimit, GradeCover, GradePolicyCover.
+            (In case of creditLimit, most recent decision update date between primary and CAP/CAP+)
+          format: date
+        maxResponseDate:
+          type: string
+          description: To be used with minResponseDate to bound results. Format yyyy-MM-dd. Each type of cover has a
+            response date, it is specified in the attribute responseDate in
+            each cover type.
+            In case of several individual covers aggregated, the response date which is displayed on the root is
+            the most recent reponse date between CreditLimit, GradeCover, GradePolicyCover.
+            (In case of creditLimit, most recent decision update date between primary and CAP/CAP+)
+          format: date
+        sorts:
+          type: array
+          description: |-
+            Can be sorted using the following attributes:
+            * policyId
+            * totalAmount
+            * lastUpdateDate
+            * totalAmountCurrencyCode
+            * companyName
+            * creditLimitPolicyHolderAlertGenerationDate
+            * creditLimitEndDate
+            * creditLimitIncreaseEndDate
+            * gradePolicyCoverEndDate
+            * gradeCoverEndDate
+          items:
+            $ref: '#/components/schemas/Sort'
+        pagination:
+          description: describes how the response should be paginated
+          allOf:
+            - $ref: '#/components/schemas/Pagination'
+    SearchCover:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CoverCoreInfo'
+      properties:
+        coverTypeCodes:
+          type: array
+          description: Cover type code
+          items:
+            $ref: '#/components/schemas/CoverTypeCode'
+        coverSubTypeCodes:
+          type: array
+          description: Decision type
+          items:
+            $ref: '#/components/schemas/CoverSubTypeCode'
+        lastUpdateDate:
+          type: string
+          description: Last Update date. Format yyyy-MM-dd. Each type of cover has a
+            decision date that is updated when the decision changes, it is specified in the attribute lastUpdateDate in
+            each cover type.
+            In case of several individual covers aggregated, the decision update date which is displayed on the root is
+            the most recent update date between CreditLimit, GradeCover, GradePolicyCover.
+            (In case of creditLimit, most recent decision update date between primary and CAP/CAP+)"
+          format: date
+        companyName:
+          type: string
+          description: Buyer company name.
+        companyCountryCode:
+          type: string
+          description: Buyer company country code.
+        requestDate:
+          type: string
+          description: Format yyyy-MM-dd
+            In case of several individual covers aggregated, the request
+            date which is displayed on the root is the most recent one. Most recent request date between
+            CreditLimit, GradeCover and GradePolicyCover.
+            (In case of creditLimit, most recent request date between  primary and CAP/CAP+)
+          format: date
+        gradePolicyCoverGradeCode:
+          type: string
+          description: |
+            The grade that generated the gradePolicyCover. Only shown if there is a gradePolicyCover Deluxe.
+            |code|definition|
+            |--|------------------------------------|
+            |01|Exceptional|
+            |02|Strong|
+            |03|Good|
+            |04|Above Average|
+            |05|Average|
+            |06|Below Average|
+            |07|Weak|
+            |08|Distressed|
+            |09|Uninsurable|
+            |10|Failed|
+            |ER|Errored|
+            |NA|Not applicable|
+            |NE|Meaningless|
+            |NV|Invalid|
+          enum:
+            - '01'
+            - '02'
+            - '03'
+            - '04'
+            - '05'
+            - '06'
+            - '07'
+            - '08'
+            - '09'
+            - '10'
+            - 'ER'
+            - 'NA'
+            - 'NE'
+            - 'NV'
+        creditLimitPolicyHolderAlert:
+          type: object
+          properties:
+            generationDate:
+              type: string
+              description: Format yyyy-MM-dd.
+                In case of several creditLimit, most recent generation date between  primary and CAP/CAP+
+              format: date
+            isActive:
+              type: boolean
+              description:
+                Flag set to true if one of creditLimit policy holder alert is active.
+          description: PolicyHolderAlert flag only applied on Primary, CAP/CAP+ covers .
+        creditLimitEndDate:
+          description: End date of a credit limit. It is aggregated with the most recent endDate between the primary and the top-up. Format yyyy-MM-dd
+          type: string
+          format: date
+        creditLimitIncreaseEndDate:
+          description: End date of a credit limit's'temporary increase. It is aggregated with the most recent increaseEndDate between the primary and the top-up. Format yyyy-MM-dd
+          type: string
+          format: date
+        gradePolicyCoverEndDate:
+          description: End date of a gradePolicyCover. Format yyyy-MM-dd
+          type: string
+          format: date
+        gradeCoverEndDate:
+          description: End date of a gradeCover. Format yyyy-MM-dd
+          type: string
+          format: date
+      description: "Global cover which is the aggregation of several individual covers, for a policy holder on a Buyer (defined or unknown). Aggregation rules : https://confluence.eulerhermes.com/display/IAD/Cover+V3%3A+aggregation+rules"
+    CreditLimitCoreInfo:
+      description: Main Information about the CreditLimit underwritten decision including covered amount, in most cases based on a cover request.
+      required:
+        - amount
+        - coverStatusCode
+        - creditLimitTypeCode
+        - currencyCode
+        - startDate
+      type: object
+      properties:
+        shadowPolicy:
+          allOf:
+            - $ref: '#/components/schemas/Policy'
+          description: Raw technical policy identification defined in the credit limit if different from main policy. The shadowPolicy will only be filled in case the creditLimit is of type cap or capPlus.
+        requestId:
+          type: string
+          description: The request identifier. First char is reserved for source definition.
+        decisionId:
+          type: string
+          description: The decision identifier. First char is reserved for source definition.
+        coverStatusCode:
+          description: Cover's status code
+          allOf:
+            - $ref: '#/components/schemas/CreditLimitCoverStatusCode'
+        technicalDecisionStatusCode:
+          type: string
+          description: detail on the status (decision code)
+          enum:
+            - DiscretionaryLimit
+            - FullCancellation
+            - AdministrativeCancellation
+            - CancelDueBuyerTransfert
+            - CancelDuePolicyTransfert
+            - Maintain
+            - RestrictiveAnswer
+            - PartialWithdrawal
+            - NonDenomme
+            - AlreadyAgreed
+            - Agreement
+            - PartialCancellation
+            - Refusal
+            - UnableToCover
+            - AdministrativeWithdrawal
+            - SingleLimitWithdrawal
+            - BindingContractPosition
+            - RiskWithdrawal
+            - LimitUpdate
+            - ContractualModification
+            - Rollback
+            - PolicyStatusChange
+            - LimitReactivation
+            - PolicyTransfer
+            - BuyerTransfer
+        businessDecisionStatusCode:
+          type: string
+          description: business code (meaningful decision code)
+          enum:
+            - DiscretionaryLimit
+            - FullCancellation
+            - AdministrativeCancellation
+            - CancelDueBuyerTransfert
+            - CancelDuePolicyTransfert
+            - Cancelled
+            - Maintain
+            - RestrictiveAnswer
+            - PartialWithdrawal
+            - NonDenomme
+            - AlreadyAgreed
+            - Agreement
+            - PartialCancellation
+            - Refusal
+            - UnableToCover
+            - AdministrativeWithdrawal
+            - SingleLimitWithdrawal
+            - BindingContractPosition
+            - RiskWithdrawal
+            - LimitUpdate
+            - ContractualModification
+            - PolicyStatusChange
+            - LimitReactivation
+            - PolicyTransfer
+            - BuyerTransfer
+            - Unknown
+        creditLimitTypeCode:
+          type: string
+          description: |
+            Credit limit type code:
+              * `Primary` - Primary cover.
+              * `Cap` - Top up cover compliant with a Primary cover greater than zero.
+              * `CapPlus` - Top up cover compliant with a Primary and Cap cover equal to zero.
+              * `PreCheck` - Draft of a Primary cover valid until policy signature.
+              * `PreCheckCap` - Draft of a Cap cover valid until policy signature.
+              * `PreCheckCapPlus` - Draft of a Cap Plus cover valid until policy signature.
+          enum:
+            - Primary
+            - Cap
+            - CapPlus
+            - PreCheck
+            - PreCheckCap
+            - PreCheckCapPlus
+        amount:
+          type: integer
+          description: The granted amount.
+        currencyCode:
+          maxLength: 3
+          type: string
+          description: ISO 4217 Currency Code if a business decision is supplied.
+          x-code-table: https://api.allianz-trade.com/v1/currencies
+        startDate:
+          type: string
+          description: Decision effective start date. Format yyyy-MM-dd.
+          format: date
+        endDate:
+          type: string
+          description: Decision end date. Format yyyy-MM-dd. This is not the endDate of the global cover, but the end of current creditLimit, in order to know if it is expired or not.
+          format: date
+        lastUpdateDate:
+          type: string
+          description: Cover last decision update date. This date corresponds to the last decision update date. Format yyyy-MM-dd.
+          format: date
+        responseDate:
+          type: string
+          description: Cover response date. Format yyyy-MM-dd.
+          format: date
+        responseTime:
+          type: string
+          description: Cover response time. Format HH:MM:SS.
+          format: time
+        customerCompanyReference:
+          maxLength: 20
+          type: string
+          description: Customer's internal reference on this buyer.
+        statusMotiveCode:
+          type: string
+          description: StatusCode given explanation.
+        temporary:
+          description: information about the temporary cover
+          allOf:
+            - $ref: '#/components/schemas/TemporaryCoreInfo'
+    CreditLimit:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CreditLimitCoreInfo'
+      properties:
+        lastFinancialStatementsDate:
+          type: string
+          description: Date of the latest financial statements if defined on buyer. Format yyyy-MM-dd.
+          format: date
+        bindingContractPositionCode:
+          type: string
+          description: Binding contracts are also known as non-cancellable contracts. Defines the underwriting position for this cover.
+          enum:
+            - Approved
+            - Denial
+            - NotValuated
+        creditPeriod:
+          type: integer
+          description: The period duration in days.
+        statusMotiveDetails:
+          description: Explanation about a negative decision for a cover
+          allOf:
+            - $ref: '#/components/schemas/CreditLimitMotiveDetails'
+        insuredPercentage:
+          maximum: 1
+          minimum: 0
+          type: number
+          description: Insured percentage of covered amount.
+          format: float
+        hasToBeInvoiced:
+          type: boolean
+          description: defines if current credit limit has to be invoiced
+        endorsementReference:
+          type: string
+          description: notification sent to the insured in order to link it to the export document. Only one reference max per policy.
+          x-audience: MyEH
+        cancelabilityCode:
+          type: string
+          enum:
+            - Cancelable
+            - NonCancelableAtPolicyLevel
+            - NonCancelableAtLimitLevel
+          description: >
+            Cancelability of the limit:
+              * `Cancelable` - The limit can be canceled.
+              * `NonCancelableAtPolicyLevel` - The limit is not cancelable as the policy sets this non-cancelability trait.
+              * `NonCancelableAtLimitLevel` - The limit is not cancelable, this status was specifically set for this limit.
+        temporary:
+          description: Information about a temporary cover
+          allOf:
+            - $ref: '#/components/schemas/Temporary'
+        inclusive:
+          description: part of the permanent credit limit with specific conditions
+          allOf:
+            - $ref: '#/components/schemas/Inclusive'
+        genericConditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreditLimitGenericCondition'
+          description: list of permanent generic conditions that apply on the credit limit.
+        specificConditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreditLimitSpecificCondition'
+          description: list of specific conditions that apply on the credit limit.
+        policyHolderAlert:
+          description: alert generated for a policy holder as he / she can "go for credit" again now according to his / her original request. Also named pro-active alerts.
+          allOf:
+            - $ref: '#/components/schemas/CreditLimitPolicyHolderAlert'
+      description: Detailed Information about the CreditLimit underwritten decision including
+        covered amount, in most cases based on a cover request.
+    CreditLimitsAggregationCoreInfo:
+      type: object
+      description: Fields related to an aggregation of several creditLimits (primary, permanent, temporary, cap or cap plus) for a couple policy/buyer
+      properties:
+        creditLimitCoversStatusCode:
+          description: Cover status code
+          allOf:
+            - $ref: '#/components/schemas/CoverStatusCode'
+        creditLimitAmount:
+          type: integer
+          description: |-
+            <ul>
+              <li>The aggregated total is the value of the decision amount of the primary + the decision amount of the temporary (if not expired, according the endDate)
+            + CAP/CAP+</li>
+              <li>If various currencies, do not aggregate amounts</li>
+            </ul>
+          x-ref-resource: referential/Cover
+        creditLimitCurrencyCode:
+          type: string
+          description: Total creditLimitAmount currency code.
+          x-ref-resource: referential/Cover
+          x-code-table: https://api.allianz-trade.com/v1/currencies
+        creditLimitLastUpdateDate:
+          type: string
+          description: Credit limit last update date. Format yyyy-MM-dd.
+          format: date
+        creditLimitResponseDate:
+          type: string
+          description: Credit limit response date. Format yyyy-MM-dd.
+          format: date
+    CreditLimitsAggregation:
+      type: object
+      description: Fields related to an aggregation of several creditLimits (primary, permanent, temporary, cap or cap plus) for a couple policy/buyer
+      allOf:
+        - $ref: '#/components/schemas/CreditLimitsAggregationCoreInfo'
+        - type: object
+          properties:
+            creditLimits:
+              type: array
+              description: Credit limits on cover (max 3 now with Primary or Primary & Cap or CapPlus, with possibly an additional PreCheck) for a couple policy/buyer
+              items:
+                $ref: '#/components/schemas/CreditLimit'
+    CreditLimitsAggregationHistory:
+      type: object
+      description: Fields related to an aggregation of several creditLimits (primary, permanent, temporary, cap or cap plus) for a couple policy/buyer
+      allOf:
+        - $ref: '#/components/schemas/CreditLimitsAggregationCoreInfo'
+      properties:
+        creditLimits:
+          type: array
+          description: Credit limits on cover (max 3 now with Primary or Primary & Cap or CapPlus, with possibly an additional PreCheck) for a couple policy/buyer
+          items:
+            $ref: '#/components/schemas/CreditLimitCoreInfo'
+    CreditLimitSpecificCondition:
+      required:
+        - creationDate
+        - description
+      type: object
+      properties:
+        creationDate:
+          type: string
+          description: Specific condition creation date.
+          format: date
+        creationTime:
+          type: string
+          description: Specific condition creation time.
+          format: time
+        description:
+          type: string
+          description: free text that describes the conditions. / RENAME field description
+        languageCode:
+          type: string
+          description: enum of ISO 2 Codes.
+      description: Information about specific conditions that apply on the credit limit.
+    CreditLimitPolicyHolderAlert:
+      type: object
+      required:
+        - generationDate
+        - originalRequestedAmount
+        - originalRequestedCurrencyCode
+      properties:
+        generationDate:
+          type: string
+          format: date
+          description: generation date for this alert.
+        expirationDate:
+          type: string
+          format: date
+          description: expiration date for this alert.
+        isActive:
+          type: boolean
+          description: indicates whether a policy holder alert is active or not.
+        originalRequestedAmount:
+          type: integer
+          description: original requested amount by the policy holder.
+        originalRequestedCurrencyCode:
+          maxLength: 3
+          type: string
+          description: ISO 4217 Currency Code of the original requested amount.
+          x-code-table: https://api.allianz-trade.com/v1/currencies
+      description: alert generated for a policy holder as he / she can "go for credit" again now according to his / her original request. Also named pro-active alerts.
+    GradePolicyCoverCoreInfo:
+      required:
+        - coverTypeCode
+        - startDate
+        - coverStatusCode
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: The request identifier. First char is reserved for source definition.
+        coverStatusCode:
+          description: GradePolicyCover's status code
+          allOf:
+            - $ref: '#/components/schemas/GradePolicyCoverCoverStatusCode'
+        coverTypeCode:
+          type: string
+          description: |
+            Cover type code:
+              * `Basic` - Binary cover derived from the Buyer grade. Can have only two possible values `Cover` and `NoCover` as cover status.
+              * `Deluxe` - Cover derived from the Buyer grade and policy. Can be directly in amount or simply be a grade value (to be transformed in amount with help of a grade/amount matrix in the policy conditions).
+          enum:
+            - Basic
+            - Deluxe
+        amount:
+          type: integer
+          description: The granted amount.
+        currencyCode:
+          maxLength: 3
+          type: string
+          description: ISO 4217 Currency Code if a business decision is supplied.
+          x-code-table: https://api.allianz-trade.com/v1/currencies
+        startDate:
+          type: string
+          description: Decision effective start date. Format yyyy-MM-dd.
+          format: date
+        endDate:
+          type: string
+          description: Decision end date. Format yyyy-MM-dd.
+          format: date
+        lastUpdateDate:
+          type: string
+          description: Decision last update date. Format yyyy-MM-dd.
+          format: date
+        responseDate:
+          type: string
+          description: Response date. Format yyyy-MM-dd.
+          format: date
+        responseTime:
+          type: string
+          description: Response time. Format HH:MM:SS.
+          format: time
+        customerCompanyReference:
+          maxLength: 20
+          type: string
+          description: Customer's internal reference on this buyer.
+        gradeCode:
+          type: string
+          description: |
+            The grade that generated the cover. Only shown if coverTypeCode is Deluxe.
+            |code|definition|
+            |--|------------------------------------|
+            |01|Exceptional|
+            |02|Strong|
+            |03|Good|
+            |04|Above Average|
+            |05|Average|
+            |06|Below Average|
+            |07|Weak|
+            |08|Distressed|
+            |09|Uninsurable|
+            |10|Failed|
+            |ER|Errored|
+            |NA|Not applicable|
+            |NE|Meaningless|
+            |NV|Invalid|
+          enum:
+            - '01'
+            - '02'
+            - '03'
+            - '04'
+            - '05'
+            - '06'
+            - '07'
+            - '08'
+            - '09'
+            - '10'
+            - 'ER'
+            - 'NA'
+            - 'NE'
+            - 'NV'
+        statusMotiveCode:
+          type: string
+          description: StatusCode given explanation.
+      description: Main Information about the GradePolicyCover.
+    GradePolicyCover:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/GradePolicyCoverCoreInfo'
+      properties:
+        insuredPercentage:
+          maximum: 1
+          minimum: 0
+          type: number
+          description: Insured percentage of covered amount.
+          format: float
+        renewalSituation:
+          description: Describes the renewal situation for a defined grade cover amount
+          allOf:
+            - $ref: '#/components/schemas/RenewalSituation'
+      description: Detailed Information about the GradePolicyCover.
+    GradeCoverCoreInfo:
+      required:
+        - gradeCode
+        - amount
+        - currencyCode
+        - startDate
+        - coverStatusCode
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: The request identifier. First char is reserved for source definition.
+        coverStatusCode:
+          allOf:
+            - $ref: '#/components/schemas/CoreCoverStatusCode'
+          description: Cover's status code.
+        gradeCode:
+          type: string
+          description: The grade that generated the cover.
+        amount:
+          type: integer
+          description: The granted amount.
+        currencyCode:
+          maxLength: 3
+          type: string
+          description: ISO 4217 Currency Code if a business decision is supplied.
+          x-code-table: https://api.allianz-trade.com/v1/currencies
+        customerCompanyReference:
+          maxLength: 20
+          type: string
+          description: Customer's internal reference on this buyer.
+        startDate:
+          type: string
+          description: Decision effective start date. Format yyyy-MM-dd.
+          format: date
+        endDate:
+          type: string
+          description: Decision end date. Format yyyy-MM-dd.
+          format: date
+        lastUpdateDate:
+          type: string
+          description: Decision last update date. Format yyyy-MM-dd.
+          format: date
+        responseDate:
+          type: string
+          description: Response date. Format yyyy-MM-dd.
+          format: date
+        responseTime:
+          type: string
+          description: Response time. Format HH:MM:SS.
+          format: time
+        statusMotiveCode:
+          type: string
+          description: StatusCode given explanation.
+      description: Main Information about the DLR (discretionary limit request).
+    GradeCover:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/GradeCoverCoreInfo'
+      properties:
+        insuredPercentage:
+          maximum: 1
+          minimum: 0
+          type: number
+          description: Insured percentage of covered amount.
+          format: float
+        renewalSituation:
+          description: Describes the renewal situation for a defined grade cover amount
+          allOf:
+            - $ref: '#/components/schemas/RenewalSituation'
+      description: Detailed Information about the DLR (discretionary limit request).
+    TemporaryRequest:
+      required:
+        - increaseAmount
+        - increaseExpiryDate
+      type: object
+      properties:
+        increaseAmount:
+          type: integer
+          description: The temporary amount requested.
+        increaseExpiryDate:
+          type: string
+          description: The expiry date for the requested temporary increase.
+          format: date
+      description: All information about the temporary request.
+    TemporaryCoreInfo:
+      type: object
+      properties:
+        requestId:
+          type: string
+          description: The request identifier. First char is reserved for source definition.
+        increaseAmount:
+          type: integer
+          description: Temporary increase amount.
+        increaseStartDate:
+          type: string
+          description: Start date of the temporary increase. Format yyyy-MM-dd.
+          format: date
+        increaseEndDate:
+          type: string
+          description: End date of the temporary increase, required if increaseStartDate
+            is present. Format yyyy-MM-dd.
+          format: date
+      description: A set of the temporary cover data, if a business decision is supplied. (You will find the temporary granted amount, and the temporary cover dates)
+    Temporary:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/TemporaryCoreInfo'
+      properties:
+        creditPeriod:
+          type: integer
+          description: The period duration in days.
+        insuredPercentage:
+          maximum: 1
+          minimum: 0
+          type: number
+          description: Insured percentage of covered amount.
+          format: float
+        isExpired:
+          type: boolean
+          description: Computed flag set to define if temporary cover is expired.
+        genericConditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreditLimitGenericCondition'
+          description: list of temporary generic conditions that apply on the credit limit.
+      description: A set of the temporary cover data, if a business decision is supplied. (You will find the temporary granted amount, and the temporary cover dates)
+    Inclusive:
+      type: object
+      properties:
+        inclusiveAmount:
+          type: integer
+          description: Covered amount.
+        currencyCode:
+          maxLength: 3
+          type: string
+          description: ISO 4217 Currency Code.
+        creditPeriod:
+          type: integer
+          description: The period duration in days.
+        insuredPercentage:
+          maximum: 1
+          minimum: 0
+          type: number
+          description: Insured percentage of covered amount.
+          format: float
+          example: 0.15
+        genericConditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreditLimitGenericCondition'
+          description: list of inclusive generic conditions that apply on the credit limit.
+      description: Part of the permanent credit limit with specific conditions.
+    CreditLimitGenericCondition:
+      required:
+        - creationDate
+        - description
+        - conditionTypeCode
+      type: object
+      properties:
+        creationDate:
+          type: string
+          description: Generic condition creation date. Format yyyy-MM-dd.
+          format: date
+        creationTime:
+          type: string
+          description: Generic condition creation time. Format HH:MM:SS.
+          format: time
+        description:
+          type: string
+          description: free text that describes the condition.
+        conditionTypeCode:
+          type: string
+          enum:
+            -  AgainstGuaranteeOf
+            -  AcceptedBills
+            -  AcceptedBillsNDaysMonthEnd
+            -  AcceptedBillsAtNDays
+            -  AvalisedBillsExchangeBy
+            -  CapCapPlusCover
+            -  DocExchangedBillsOnSight
+            -  DocExchangedBillsOnSightNdays
+            -  IrrevocableLCNDays
+            -  IrrevocableLCNOnSight
+            -  PaymentNDaysMonthEnd
+            -  CashPayment
+            -  ScheduledPaymentNMonths
+            -  CashPaymentAgainstDocs
+            -  PaymentMonthEnd
+            -  PaymentMonthEndDocsBills
+            -  NoOverdueInvoices
+            -  InvoicesToJointOwners
+            -  InvoicesOnCoveredCountry
+            -  PaymentNDays
+            -  PerBuyerDeductible
+            -  StateShelter
+            -  StateShelterPlus
+            -  OwnBusinessAmount
+            -  ShareForUnspecifiedBuyers
+            -  CautionJointLetter
+            -  UnderwritingActionNeeded
+            - Undefined
+          description: type of generic conditions.
+        internalCode:
+          type: string
+          description: internal code of condition.
+          x-code-table: /riskinfo/v2/dataRef/otherTerms
+      description: list of generic conditions that apply on the credit limit.
+    StrategicCover:
+      required:
+        - isStrategic
+      type: object
+      properties:
+        isStrategic:
+          type: boolean
+          description: Cover is strategic or not for client.
+        strategicStartDate:
+          type: string
+          description: Strategic cover start date. Returned if the cover is strategic. Format yyyy-MM-dd.
+          format: date
+      description: Client strategic flag only applied on CreditLimit type cover.
+    UnidentifiedCompany:
+      required:
+        - countryCode
+      type: object
+      properties:
+        countryCode:
+          maxLength: 2
+          minLength: 2
+          type: string
+          description: ISO 3166-1 alpha-2 country Codes
+          x-code-table: https://api.allianz-trade.com/v1/countries
+        identificationHint:
+          type: object
+          description: Required when the company name is not provided
+          required:
+            - hintIdValue
+            - hintIdTypeCode
+          properties:
+            hintIdValue:
+              type: string
+              description: id that can be used to identify this company against ledger matching systems.
+              maxLength: 20
+            hintIdTypeCode:
+              type: string
+              description: type of id.
+              maxLength: 8
+        companyName:
+          maxLength: 120
+          type: string
+          description: The company name is required when identificationHint is not used.
+        streetNumber:
+          maxLength: 10
+          type: string
+          description: Number of the street
+        streetName:
+          maxLength: 35
+          type: string
+          description: Name of the street
+        complementaryStreetName:
+          maxLength: 35
+          type: string
+          description: Complementary information about the street name
+        postCode:
+          maxLength: 9
+          type: string
+          description: Postal code
+        subdivisionCode:
+          maxLength: 35
+          type: string
+          description: Depending on the country, field could contain region, state,
+            department, province, county ...
+        town:
+          maxLength: 35
+          type: string
+          description: Town or city
+        postOfficeBox:
+          maxLength: 9
+          type: string
+          description: Post office box
+        phone:
+          maxLength: 18
+          type: string
+          description: phone number. May contain non numeric characters ('-', '/',
+            '.', spaces ...)
+        mobilePhone:
+          maxLength: 18
+          type: string
+          description: company mobile phone
+        webSite:
+          maxLength: 70
+          type: string
+          description: company web site
+        socialMedia:
+          maxLength: 400
+          type: string
+          description: URL of facebook, tweeter, accounts etc ...
+        companyPersonalInformation:
+          maxLength: 400
+          type: string
+          description: specific information the requestor can give about the company to help AZ Trade to find it
+      description: Used when the company cannot be identified either by the companyId or by another identifier.
+    ErrorDetails:
+      type: object
+      properties:
+        field:
+          type: string
+          description: JSON Pointer to the field in error if in body, else name of the path parameter or query parameter
+        value:
+          type: string
+          description: Value of the field in error.
+        issue:
+          type: string
+          description: Reason for error.
+        location:
+          type: string
+          description: The location of the field in the error, either query, path or body.
+          enum:
+            - query
+            - path
+            - header
+            - body
+      description: Details for a given error thrown on a HTTP request for an endpoint described in this OpenAPI file.
+    CoverRequestDetails:
+      type: object
+      required:
+        - currencyCode
+        - requestedAmount
+      properties:
+        requestedAmount:
+          type: integer
+          description: The amount which has been requested.
+        currencyCode:
+          maxLength: 3
+          type: string
+          description: ISO 4217 Currency Code. The currency code for the requested
+            amount.
+          x-code-table: https://api.allianz-trade.com/v1/currencies
+        temporaryRequest:
+          description: Information about the temporary cover request
+          allOf:
+            - $ref: '#/components/schemas/TemporaryRequest'
+        paymentTerms:
+          description: Details about the payment terms of the Buyer for a credit limit request
+          allOf:
+            - $ref: '#/components/schemas/PaymentTerms'
+      description: Only apply for CreditLimit type of cover. Specifies the requested
+        amount by the policy holder before the underwriting process.
+    PaymentTerms:
+      required:
+        - creditPeriod
+      type: object
+      properties:
+        creditPeriod:
+          type: integer
+          description: The period duration in days.
+        comment:
+          maxLength: 100
+          type: string
+          description: The period comment.
+      description: Details about the payment terms of the Buyer for current credit
+        limit request.
+    CreditLimitMotiveDetails:
+      type: object
+      properties:
+        riskUnderwriterComment:
+          type: string
+          description: Free text reserved to the risk underwriter to justify his decision.
+        narrativesListCodes:
+          type: array
+          description: A list of narrative codes. For more information, refer to the
+            endpoint dataRef.
+          items:
+            type: string
+        restrictiveDecisionReason:
+          maxLength: 5000
+          type: string
+          description: Display a more detailed text to the user in case of restrictive
+            answer.
+        delayedEffectDate:
+          type: string
+          description: Delayed effect date. Format yyyy-MM-dd.
+          format: date
+      description: More Explanation about a negative decision for the cover.
+    RenewalSituation:
+      type: object
+      properties:
+        isOnRenewalPeriod:
+          type: boolean
+          description: If you are in the renewal period, you can can change your current
+            renewal situation (with patch RenewalSituation) in order to renew or cancel
+            your grade request. This field cannot be patched.
+        currentRenewalSituation:
+          type: string
+          description: current renewal status
+          enum:
+            - willNotBeRenewed
+            - willBeRenewed
+            - notRenewable
+        expiryDate:
+          type: string
+          description: Grade code may vary until this date. This field cannot be patched. Format yyyy-MM-dd.
+          format: date
+      description: Describes the renewal situation for a defined grade cover amount.
+    Sort:
+      type: object
+      properties:
+        attributeName:
+          type: string
+          description: Attribute on which sort will be applied.
+        orderTypeCode:
+          type: string
+          description: Order by
+          enum:
+            - ASC
+            - DESC
+      description: Sort response as defined in the [API Guidelines Sorting]
+    CoreCoverStatusCode:
+      type: string
+      description: Cover Status Codes.
+      enum:
+        - Cover
+        - NoCover
+        - Inactive
+        - Rejected
+        - Closed
+    CoverStatusCode:
+      type: string
+      description: >-
+        If (Decision amount of the primary + Decision amount of CAP/CAP+)
+        = 0 then No Cover.<br/>
+        If (Decision amount of the primary + Decision amount of CAP/CAP+)
+        < Requested amount of the primary then Partial.<br/>
+        Rejected concerns only gradePolicyCover products.<br/>
+        Inactive concerns expired covers.<br/>
+        Closed concerns covers cancelled by the policy holder.
+      allOf:
+        - $ref: '#/components/schemas/CoreCoverStatusCode'
+        - type: string
+          enum:
+            - Partial
+            - Pending
+            - CheckPolicy
+    CoverSubTypeCode:
+      type: string
+      description: >-
+        Cover type code:
+          * `Primary` - Primary cover.
+          * `Cap` - Top up cover compliant with a Primary cover greater than zero.
+          * `CapPlus` - Top up cover compliant with a Primary and Cap cover equal to zero.
+          * `Basic` - Binary cover derived from the Buyer grade. Can have only two possible values `Cover` and `NoCover` as cover status.
+          * `Deluxe` - Cover derived from the Buyer grade and policy. Can be directly in amount or simply be a grade value (to be transformed in amount with help of a grade/amount matrix in the policy conditions).
+
+          Values below concerns technical policies
+
+          * `PreCheck` - Draft of a Primary cover valid until policy signature.
+          * `PreCheckCap` - Draft of a Cap cover valid until policy signature.
+          * `PreCheckCapPlus` - Draft of a Cap Plus cover valid until policy signature.
+      enum:
+        - Primary
+        - Cap
+        - CapPlus
+        - PreCheck
+        - PreCheckCap
+        - PreCheckCapPlus
+        - Basic
+        - Deluxe
+    CoverGroupRoleCode:
+      type: string
+      enum:
+        - HeadGroup
+        - HeadKontor
+        - Joint
+      description: |
+        role of member for a given group, only 1 HeadGroup or 1 HeadKontor is defined per CoverGroup:
+        * `HeadGroup` - known as G in legacy system, head of CoverGroup
+        * `HeadKontor` - known as K in legacy system, head of CoverGroup (Kontor)
+        * `Joint` - known as J in legacy system, child of group
+    CreditLimitCoverStatusCode:
+      description: CreditLimitCover's status code
+      allOf:
+        - $ref: '#/components/schemas/CoreCoverStatusCode'
+        - type: string
+          enum:
+            - Partial
+    GradePolicyCoverCoverStatusCode:
+      description: GradePolicyCover's status code
+      allOf:
+        - $ref: '#/components/schemas/CoreCoverStatusCode'
+        - type: string
+          enum:
+            - CheckPolicy
+    SearchCoverRequestCriteria:
+      type: object
+      description: 'Contains all the search cover request criteria and filters'
+      properties:
+        policies:
+          type: array
+          description: 'The user can set a list of policies on which to retrieve the covers.'
+          items:
+            $ref: '#/components/schemas/Policy'
+        coverId:
+          type: string
+          description: 'The cover identifier'
+        companyName:
+          type: string
+          description: The company name including the unknownBuyer company.
+        companyIds:
+          type: array
+          description: A list of buyer company identifiers. Companies wrongly identified are ignored. <br> This attribute takes precedence over _companyId_ (in case both of them are informed).
+          minItems: 1
+          items:
+            type: string
+            description: Buyer Company identifier
+        companyId:
+          deprecated: true
+          type: string
+          description: Buyer company identifier. Deprecated. You should inform the attribute _companyIds_ instead.
+        companyCountryCode:
+          type: string
+          description: Buyer company country code.
+        requestStatusCode:
+          type: string
+          description: underwriting status of the request
+          enum:
+            - Answered
+            - InProgress
+            - Rejected
+            - Cancelled
+            - Abandoned
+            - AwaitingUserValidation
+            - Terminated
+            - Undefined
+        requestTypeCodes:
+          type: array
+          description: Request type codes
+          items:
+            $ref: '#/components/schemas/RequestTypeCode'
+        requestStatusTrackerCodes:
+          type: array
+          description: |
+            The status tracker code for pending requests.
+            |code| description|
+            |----|------------|
+            |0   |Country not covered|
+            |1   |Buyer Research|
+            |2   |Information Gathering|
+            |3   |Decision Making|
+          items:
+            type: string
+            enum:
+              - '0'
+              - '1'
+              - '2'
+              - '3'
+        customerCompanyReference:
+          maxLength: 20
+          type: string
+          description: Only returns the coverages matching with the customerCompanyReference given in parameter.
+        isRequestUrgent:
+          type: boolean
+          description: May trigger an extra cost.
+        startCreationDate:
+          type: string
+          description: The request creation date. Format yyyy-MM-dd
+          format: date
+        endCreationDate:
+          type: string
+          description: The request creation date. Format yyyy-MM-dd
+          format: date
+        minRequestedAmount:
+          type: integer
+          description: The minimum requested amount
+        maxRequestedAmount:
+          type: integer
+          description: The maximum requested amount
+        currencyCode:
+          type: string
+          description: The requested currency code
+          x-code-table: https://api.allianz-trade.com/v1/currencies
+        brokerAppealCode:
+          type: string
+          description: has the request been made with broker appeal
+          enum:
+            - With
+            - Without
+            - Undefined
+        sorts:
+          type: array
+          description: |-
+            Can be sorted using the following attributes:
+            * creationDate
+            * requestedAmount
+          items:
+            $ref: '#/components/schemas/Sort'
+        pagination:
+          description: describes how the response should be paginated
+          allOf:
+            - $ref: '#/components/schemas/Pagination'
+    CoverTypeCode:
+      type: string
+      description: >-
+        Cover type:
+          * `creditLimit` - A unique representation of an aggregation of several creditLimits (primary, permanent, temporary, cap or cap plus) for a couple policy/buyer
+          * `gradePolicyCover` - A unique representation of gradePolicyCover
+          * `gradeCover` - Cover in amount derived from the Buyer grade only.
+      enum:
+        - creditLimit
+        - gradePolicyCover
+        - gradeCover
+    RequestTypeCode:
+      type: string
+      description: >-
+        Request type code:
+          * `Primary` - Primary cover.
+          * `Cap` - Top up cover compliant with a Primary cover greater than zero.
+          * `CapPlus` - Top up cover compliant with a Primary and Cap cover equal to zero.
+          * `GradePolicyCoverBasic` - Binary cover derived from the Buyer grade. Can have only two possible values Cover and NoCover as cover status.
+          * `GradePolicyCoverDeluxe` - Cover derived from the Buyer grade and policy.
+          * `GradeCover` - Cover in amount derived from the Buyer grade only.
+
+          Values below concerns technical policies
+
+          * `PreCheck` - Draft of a Primary cover valid until policy signature.
+          * `PreCheckCap` - Draft of a Cap cover valid until policy signature.
+          * `PreCheckCapPlus` - Draft of a Cap Plus cover valid until policy signature.
+          * `PreCheckCapOrCapPlus` - Draft of a Cap or a Cap Plus cover valid until policy signature.
+          * `PreCheckGradeCover` - Draft of a GradeCover cover valid until policy signature.
+          * `PreCheckGradePolicyCoverBasic` - Draft of a GradePolicyCoverBasic cover valid until policy signature.
+          * `PreCheckGradePolicyCoverDeluxe` - Draft of a GradePolicyCoverDeluxe cover valid until policy signature.
+          * `CapOrCapPlus` - Can be a Cap or a CapPlus request.
+
+      enum:
+        - Primary
+        - Cap
+        - CapPlus
+        - CapOrCapPlus
+        - PreCheck
+        - PreCheckCap
+        - PreCheckCapPlus
+        - PreCheckCapOrCapPlus
+        - PreCheckGradeCover
+        - PreCheckGradePolicyCoverBasic
+        - PreCheckGradePolicyCoverDeluxe
+        - GradePolicyCoverBasic
+        - GradePolicyCoverDeluxe
+        - GradeCover
+    Pagination:
+      type: object
+      description: Technical object allowing pagination in a POST context
+      properties:
+        page:
+          description: The index of the wanted page
+          type: integer
+          default: 1
+        pageSize:
+          description: The number of the wanted pages
+          type: integer
+          default: 100
+        offset:
+          type: string
+          description: For non-index based pagination, the offset of the next page
+        isTotalRequired:
+          type: boolean
+          description: Specify if the total number of items (Total-Items) and pages (Total-Pages) are expected to be returned in the response
+    CoverHistory:
+      type: object
+      description: Cover history for a specific coverTypeCode
+      required:
+        - policy
+        - companyId
+      properties:
+        policy:
+          description: Policy identifier.
+          allOf:
+            - $ref: '#/components/schemas/Policy'
+        companyId:
+          type: string
+          description: Buyer company identifier.
+        historyItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/CoverHistoryItem'
+          description: An array of CoverHistoryItem sorted by descending startDate constituting a chronology
+    CoverHistoryItem:
+      type: object
+      description: A representation of the cover between startDate and endDate
+      required:
+        - startDate
+        - data
+      properties:
+        startDate:
+          type: string
+          description: Format yyyy-MM-dd. The earliest date in the historyItem. This date will be determined from the major changes related to the cover (creditLimitCoversStatusCode, creditLimitAmount, creditLimitCurrencyCode, creditLimitLastUpdateDate, creditLimitResponseDate )
+          format: date
+        endDate:
+          type: string
+          format: date
+          description: Format yyyy-MM-dd. The latest date in the historyItem. will not be returned for the current period. This date will be determined from the major changes related to the cover (creditLimitCoversStatusCode, creditLimitAmount, creditLimitCurrencyCode, creditLimitLastUpdateDate, creditLimitResponseDate )
+        data:
+          type: object
+          description: >-
+            Dynamic content depends on coverTypeCode:
+             * coverTypeCode = `creditLimit`: A unique representation of an aggregation of several creditLimits (primary, permanent, temporary, cap or cap plus) for a couple policy/buyer between startDate and endDate will be returned
+             * coverTypeCode = `gradePolicyCover`: A unique representation of gradePolicyCover between startDate and endDate will be returned
+             * coverTypeCode = `gradeCover`: A unique representation of gradeCover between startDate and endDate will be returned
+          oneOf:
+            - $ref: '#/components/schemas/CreditLimitsAggregationHistory'
+            - $ref: '#/components/schemas/GradePolicyCoverCoreInfo'
+            - $ref: '#/components/schemas/GradeCoverCoreInfo'
+    CoverHistoryTypeCode:
+      type: string
+      description: >-
+        Cover type:
+          * `creditLimit` - A unique representation of an aggregation of several creditLimits (primary, permanent, temporary, cap or cap plus) for a couple policy/buyer
+          * `gradePolicyCoverBasic` - Binary cover derived from the Buyer grade. Can have only two possible values Cover and NoCover as cover status.
+          * `gradePolicyCoverDeluxe` - Cover derived from the Buyer grade and policy.
+          * `gradeCover` - Cover in amount derived from the Buyer grade only.
+      enum:
+        - creditLimit
+        - gradePolicyCoverBasic
+        - gradePolicyCoverDeluxe
+        - gradeCover
+    SearchPendingCriteria:
+      type: object
+      required:
+        - policies
+      properties:
+        policies:
+          type: array
+          description: 'The user can set a list of policies, limited to 50 items, on which to retrieve all the pending requests (cover or coverrequest)'
+          items:
+            $ref: '#/components/schemas/Policy'
+          maxItems: 50
+        pagination:
+          description: describes how the response should be paginated
+          allOf:
+            - $ref: '#/components/schemas/Pagination'
+      description: Criteria to find pending covers.
+    PendingCover:
+      type: object
+      required:
+        - jobId
+        - policy
+        - contactId
+        - creationTimestamp
+        - methodCode
+        - path
+      description: 'Contains all information related to the original request'
+      properties:
+        jobId:
+          type: string
+          description: The id of the job.
+        policy:
+          description: Policy identifier.
+          allOf:
+            - $ref: '#/components/schemas/Policy'
+        contactId:
+          type: string
+          description: The issuer of the request.
+        creationTimestamp:
+          type: string
+          description: Request creation timestamp.
+          format: date-time
+        path:
+          type: string
+          example: "/covers"
+          format: uri
+          description: >-
+            relative path used for the action, it will include the path variables
+              * `/covers`
+              * `/covers/{coverId}`
+              * `/covers/{coverId}/{requestTypeCode}`
+        methodCode:
+          type: string
+          description: relative method used for the action
+          example: "POST"
+          enum:
+            - POST
+            - PATCH
+            - DELETE
+        body:
+          oneOf:
+            - $ref: '#/components/schemas/CoverRequestCoreInfo'
+            - $ref: '#/components/schemas/CoverUpdate'
+          description: >-
+            the body used for the action:
+              * CoverRequestCoreInfo for `POST /covers`
+              * CoverUpdate for `PATCH /covers/{coverId}`
+    PendingCoverRequest:
+      type: object
+      required:
+        - jobId
+        - policy
+        - contactId
+        - creationTimestamp
+        - methodCode
+        - path
+      description: 'Contains all information related to the original request'
+      properties:
+        jobId:
+          type: string
+          description: The id of the job.
+        policy:
+          description: Policy identifier. Should always be the primary cover's policy value for Cap & CapPlus cases.
+          allOf:
+            - $ref: '#/components/schemas/Policy'
+        contactId:
+          type: string
+          description: The issuer of the request.
+        creationTimestamp:
+          type: string
+          description: Request creation timestamp.
+          format: date-time
+        path:
+          type: string
+          example: "/coverRequests/{requestId}"
+          format: uri
+          description: >-
+            relative path used for the action, it will include the path variables
+              * `/coverRequests/{requestId}`
+        methodCode:
+          type: string
+          description: relative method used for the action
+          example: "DELETE"
+          enum:
+            - DELETE
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      name: Authorization
+      in: header
+      x-amazon-apigateway-authtype: custom
+      x-amazon-apigateway-authorizer:
+        identitySource: method.request.header.Authorization
+        authorizerUri: ${authorizer_lambda_invoke_arn}
+        authorizerCredentials: ${apigw_role_arn}
+        type: request
