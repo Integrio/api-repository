@@ -3332,39 +3332,38 @@ paths:
       responses:
         '204':
           description: No Content
-  /api/v1.0.0/extensions/connectorstates/{connectorId}:
-    get:
-      tags:
-        - Extension
-      summary: Get all ConnectorStates for Connector
-      operationId: GetAllConnectorStatesByConnectorIdAsync
-      parameters:
-        - name: connectorId
-          in: path
-          description: Connector ID
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Success
-          content:
-            text/plain:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ConnectorStateModel'
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ConnectorStateModel'
-            text/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ConnectorStateModel'
   /api/v1.0.0/extensions/connectorstates/{id}:
+    get:
+        tags:
+          - Extension
+        summary: Get all ConnectorStates for Connector
+        operationId: GetAllConnectorStatesByConnectorIdAsync
+        parameters:
+          - name: id
+            in: path
+            description: Connector ID
+            required: true
+            schema:
+              type: string
+        responses:
+          '200':
+            description: Success
+            content:
+              text/plain:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ConnectorStateModel'
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ConnectorStateModel'
+              text/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ConnectorStateModel'
     put:
       tags:
         - Extension
