@@ -42,6 +42,17 @@
             "url": "allianzcreditcover/allianzcreditcover-openapi.yaml"
           }
         ]
+      },
+      {
+        "name": "inriver REST API",
+        "description": "inriver REST API",
+        "baseUrl": "https://apieuw.productmarketingcloud.com",
+        "properties": [
+          {
+            "type": "X-openapi",
+            "url": "inriver/inriverpim-openapi.yaml"
+          }
+        ]
       }
     ]
   }
