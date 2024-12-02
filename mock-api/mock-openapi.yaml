@@ -1,0 +1,195 @@
+swagger: '2.0'
+info:
+  title: OpenAPI Document on Azure Functions
+  description: This is the OpenAPI Document on Azure Functions
+  version: 1.0.0
+host: igrdperfionmockapi01func.azurewebsites.net
+basePath: /api
+schemes:
+  - https
+paths:
+  /GetProductDataTrigger:
+    get:
+      operationId: Run
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: size
+          type: integer
+          format: int32
+        - in: query
+          name: page
+          type: integer
+          format: int32
+        - in: query
+          name: simulateFailure
+          description: If 'true', there will be a 5% chance of failure
+          type: string
+      responses:
+        '200':
+          description: The OK response message containing a JSON result.
+          schema:
+            $ref: '#/definitions/responseDto'
+      security:
+        - function_key: []
+definitions:
+  assortment:
+    type: object
+    properties:
+      id:
+        type: string
+      availability:
+        type: string
+  configuration:
+    type: object
+    properties:
+      assortment:
+        type: string
+      availabilityCode:
+        type: string
+      url:
+        type: string
+      isActive:
+        type: boolean
+  dimension:
+    type: object
+    properties:
+      width:
+        type: string
+      depth:
+        type: string
+      height:
+        type: string
+      weight:
+        type: string
+      unitVolume:
+        type: string
+  product:
+    type: object
+    properties:
+      id:
+        type: string
+      modifiedDate:
+        format: date-time
+        type: string
+      vendorProductNo:
+        type: string
+      nobbNo:
+        type: string
+      nobbNos:
+        type: array
+        items:
+          type: string
+      superGroup:
+        type: string
+      mainGroup:
+        type: string
+      itemGroup:
+        type: string
+      productName:
+        type: string
+      productNameShort:
+        type: string
+      productText:
+        type: string
+      primaryImageName:
+        type: string
+      primaryImageGuid:
+        type: string
+      barcode:
+        type: string
+      buildingBlock:
+        type: string
+      synonyms:
+        type: array
+        items:
+          type: string
+      baseUnit:
+        type: string
+      displayUnit:
+        type: string
+      blockCollectAtStore:
+        type: boolean
+      multiple:
+        type: string
+      assortments:
+        type: array
+        items:
+          $ref: '#/definitions/assortment'
+      configuration:
+        type: array
+        items:
+          $ref: '#/definitions/configuration'
+      dimension:
+        $ref: '#/definitions/dimension'
+      vatCode:
+        type: string
+      packagingFactor:
+        type: string
+      expirationDate:
+        type: string
+      vendorNo:
+        type: string
+      vendorNos:
+        type: array
+        items:
+          type: string
+      brand:
+        type: string
+      subtitle:
+        type: string
+      type:
+        type: string
+      shortDescription:
+        type: string
+      nobbItemType:
+        type: string
+      routing:
+        type: array
+        items:
+          $ref: '#/definitions/routing'
+      primaryVendorId:
+        type: string
+      priceComparisonUnit:
+        type: string
+      coverageGroup:
+        type: string
+      maxboUrl:
+        type: string
+      maxboProffUrl:
+        type: string
+      assortmentCodes:
+        type: array
+        items:
+          type: string
+      categoryRelations:
+        type: array
+        items:
+          type: string
+  responseDto:
+    type: object
+    properties:
+      hasMore:
+        type: boolean
+      next:
+        type: string
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/product'
+  routing:
+    type: object
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+      modifiedDate:
+        format: date-time
+        type: string
+securityDefinitions:
+  function_key:
+    type: apiKey
+    name: x-functions-key
+    in: header

@@ -53,6 +53,17 @@
             "url": "inriver/inriverpim-openapi.yaml"
           }
         ]
+      },
+      {
+        "name": "Mock REST API",
+        "description": "Mock REST API",
+        "baseUrl": "https://intropy.io/api",
+        "properties": [
+          {
+            "type": "X-openapi",
+            "url": "mock-api/mock-openapi.yaml"
+          }
+        ]
       }
     ]
   }
