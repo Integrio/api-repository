@@ -64,6 +64,17 @@
             "url": "mock-api/mock-openapi.yaml"
           }
         ]
+      },
+      {
+        "name": "BizTalk Management Service API",
+        "description": "BizTalk Management Service API",
+        "baseUrl": "http://localhost/BizTalkManagementService",
+        "properties": [
+          {
+            "type": "X-openapi",
+            "url": "biztalk-api/biztalk-managementapi.yaml"
+          }
+        ]
       }
     ]
   }

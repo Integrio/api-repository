@@ -1,0 +1,269 @@
+swagger: '2.0'
+info:
+  version: v1
+  title: Microsoft.BizTalk.ManagementService
+host: localhost
+basePath: /BizTalkManagementService
+schemes:
+  - http
+paths:
+  /HostInstances:
+    get:
+      tags:
+        - HostInstances
+      summary: Get host instances
+      operationId: HostInstances_Get
+      consumes: []
+      produces:
+        - application/json
+        - text/json
+        - application/xml
+        - text/xml
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/HostInstance'
+  /OperationalData/Instances:
+    get:
+      tags:
+        - OperationalData
+      summary: Get Instances
+      operationId: OperationalData_GetInstances
+      consumes: []
+      produces:
+        - application/json
+        - text/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Instance'
+  /OperationalData/Messages:
+    get:
+      tags:
+        - OperationalData
+      summary: Get Messages
+      operationId: OperationalData_GetMessages
+      consumes: []
+      produces:
+        - application/json
+        - text/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Message'
+  /Orchestrations:
+    get:
+      tags:
+        - Orchestrations
+      summary: Get all Orchestrations
+      operationId: Orchestrations_Get
+      consumes: []
+      produces:
+        - application/json
+        - text/json
+        - application/xml
+        - text/xml
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Orchestration'
+  /ReceiveLocations:
+    get:
+      tags:
+        - ReceiveLocations
+      summary: Get Receive Locations
+      operationId: ReceiveLocations_Get
+      consumes: []
+      produces:
+        - application/json
+        - text/json
+        - application/xml
+        - text/xml
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ReceiveLocation'
+  /ReceivePorts:
+    get:
+      tags:
+        - ReceivePorts
+      summary: Get Receive Ports
+      operationId: ReceivePorts_Get
+      consumes: []
+      produces:
+        - application/json
+        - text/json
+        - application/xml
+        - text/xml
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ReceivePort'
+  /SendPortGroups:
+    get:
+      tags:
+        - SendPortGroups
+      summary: Get Send Port Groups
+      operationId: SendPortGroups_Get
+      consumes: []
+      produces:
+        - application/json
+        - text/json
+        - application/xml
+        - text/xml
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SendPortGroup'
+  /SendPorts:
+    get:
+      tags:
+        - SendPorts
+      summary: Get Send Ports
+      operationId: SendPorts_Get
+      consumes: []
+      produces:
+        - application/json
+        - text/json
+        - application/xml
+        - text/xml
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SendPort'
+definitions:
+  HostInstance:
+    type: object
+    properties:
+      HostName:
+        description: Name of the host
+        type: string
+      ServerName:
+        description: Name of the server
+        type: string
+      Status:
+        description: Status of the host instance
+        type: string
+        enum:
+          - Running
+          - Stopped
+          - Unknown
+  Instance:
+    type: object
+    properties:
+      InstanceId:
+        description: Unique identifier for the instance
+        type: string
+      Status:
+        description: Status of the instance
+        type: string
+        enum:
+          - Running
+          - Suspended
+          - Completed
+          - Terminated
+          - Unknown
+  Message:
+    type: object
+    properties:
+      MessageId:
+        description: Unique identifier for the message
+        type: string
+      Status:
+        description: Status of the message
+        type: string
+        enum:
+          - Received
+          - Processed
+          - Failed
+          - Unknown
+  Orchestration:
+    type: object
+    properties:
+      Name:
+        description: Name of the orchestration
+        type: string
+      Status:
+        description: Status of the orchestration
+        type: string
+        enum:
+          - Running
+          - Stopped
+          - Suspended
+          - Unknown
+  ReceiveLocation:
+    type: object
+    properties:
+      Name:
+        description: Name of the receive location
+        type: string
+      Status:
+        description: Status of the receive location
+        type: string
+        enum:
+          - Enabled
+          - Disabled
+          - Unknown
+  ReceivePort:
+    type: object
+    properties:
+      Name:
+        description: Name of the receive port
+        type: string
+      Status:
+        description: Status of the receive port
+        type: string
+        enum:
+          - Active
+          - Inactive
+          - Unknown
+  SendPortGroup:
+    type: object
+    properties:
+      Name:
+        description: Name of the send port group
+        type: string
+      Status:
+        description: Status of the send port group
+        type: string
+        enum:
+          - Started
+          - Stopped
+          - Unknown
+  SendPort:
+    type: object
+    properties:
+      Name:
+        description: Name of the send port
+        type: string
+      Status:
+        description: Status of the send port
+        type: string
+        enum:
+          - Started
+          - Stopped
+          - Unknown
