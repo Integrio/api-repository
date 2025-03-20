@@ -75,6 +75,17 @@
             "url": "biztalk-api/biztalk-managementapi.yaml"
           }
         ]
+      },
+      {
+        "name": "Sitoo API",
+        "description": "Sitoo API",
+        "baseUrl": "https://api.mysitoo.com/v2/accounts/{accountId}/",
+        "properties": [
+          {
+            "type": "X-openapi",
+            "url": "sitoo/sitoo-openapi.yaml"
+          }
+        ]
       }
     ]
   }

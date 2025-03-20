@@ -1,0 +1,3911 @@
+openapi: 3.0.4
+info:
+  title: Sitoo API
+  description: Sitoo OpenAPI specification derived from [Sitoo API Reference](https://developer.sitoo.com/api-reference/overview).
+  version: 2.0.0
+
+servers:
+  - url: https://api-sandbox.mysitoo.com/v2/accounts/{accountId}/
+    description: Sandbox instance
+    variables:
+      accountId:
+        default: x
+        description: Your account id
+  - url: https://api.mysitoo.com/v2/accounts/{accountId}/
+    description: Production instance
+    variables:
+      accountId:
+        default: x
+        description: Your account id
+
+paths:
+  /sites.json:
+    get:
+      summary: Get Sites
+      description: Returns an envelope with items of type site.
+      tags:
+        - Sites
+      responses:
+        200:
+          description: Returns an envelope with items of type site.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalcount:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Site'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /sites/{siteid}.json:
+    get:
+      summary: Get Site
+      tags:
+        - Sites
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: Returns an item of type site.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Site'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /sites/{siteid}/products.json:
+    post:
+      summary: Batch Add Products
+      description: This functions allows multiple items to be sent at once, like in the example below. For each item sent in an array a response is returned.
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Product'
+      responses:
+        200:
+          description: Returns productid or a batch envelope if multiple products were added.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchAddProductResponse'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    get:
+      summary: Get Products
+      description: Get collection of product. Note! Only request fields that you need since some fields are calculated and can result in unnecessary lengthy operations.
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: sku
+          description: Filter on SKU, use comma as separator for multiple values.
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: productid
+          description: Filter on product ID, use comma as separator for multiple values.
+          schema:
+            type: array
+            items:
+              type: integer
+        - in: query
+          name: includeinactive
+          description: Include products that are not active in POS or Webshop.
+          schema:
+            type: boolean
+            default: false
+        - in: query
+          name: datelastmodified
+          description: Include products that have been modified after the timestamp provided.
+          schema:
+            type: integer
+        - in: query
+          name: start
+          description: The index of the item to start from.
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: num
+          description: The number of items returned.
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: fields
+          description: Comma separated list of fields to return. Use this to query only the fields you are using. See product for all fields.
+          schema:
+            type: array
+            items:
+              type: string
+            default: [ "productid", "sku", "datemodified", "active", "activepos", "vatid", "manufacturerid", "stockcountenable", "stockallowbackorder", "barcode", "moneyprice", "moneyfinalprice" ]
+            example: /sites/{siteid}/products?fields=productid,sku
+      responses:
+        200:
+          description: Returns an envelope with items of type product.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalcount:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    put:
+      summary: Batch Update Products
+      description: Send an array of object. Either the productid or sku must be provided as identifier field for each item. If both are provided, the productid will have precedence over sku.
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Product'
+      responses:
+        200:
+          description: Returns true or a batch envelope if multiple products were updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    delete:
+      summary: Batch Delete Products
+      description: See product for fields.Required fields:productid
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Product'
+      responses:
+        200:
+          description: Returns true or a batch envelope if multiple products were deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /sites/{siteid}/products/{productid}.json:
+    get:
+      summary: Get Product
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: productid
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: Returns an item of type product.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    put:
+      summary: Update Product
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: productid
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        200:
+          description: Returns true
+          content:
+            application/json:
+              schema:
+                type: boolean
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    delete:
+      summary: Delete Product
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: productid
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: Returns true
+          content:
+            application/json:
+              schema:
+                type: boolean
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  
+  /sites/{siteid}/pricelists.json:
+    post:
+      summary: Add Price List
+      description: Note! The total number of price lists allowed is limited to 100.
+      tags:
+        - Price Lists
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PriceList'
+      responses:
+        200:
+          description: Returns pricelistid
+          content:
+            application/json:
+              schema:
+                type: integer
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    get:
+      summary: Get Price Lists
+      tags:
+        - Price Lists
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: start
+          description: The index of the item to start from.
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: num
+          description: The number of items returned.
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: fields
+          description: Comma separated list of fields to return. Use this to query only the fields you are using. Default is all fields in pricelist.
+          schema:
+            type: array
+            items:
+              type: string
+              example: /sites/{siteid}/pricelists?fields=pricelistid,pricelistname,tags
+      responses:
+        200:
+          description: Returns an envelope with items of type pricelist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalcount:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PriceList'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /sites/{siteid}/pricelists/{pricelistid}.json:
+    get:
+      summary: Get Price List
+      tags:
+        - Price Lists
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: pricelistid
+          schema:
+            type: integer
+            default: 0
+          required: true
+      responses:
+        200:
+          description: Returns an item of type pricelist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriceList'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    put:
+      summary: Update Price List
+      tags:
+        - Price Lists
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: pricelistid
+          schema:
+            type: integer
+            default: 0
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PriceList'
+      responses:
+        200:
+          description: Returns true
+          content:
+            application/json:
+              schema:
+                type: boolean
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    delete:
+      summary: Delete Price List
+      tags:
+        - Price Lists
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: pricelistid
+          schema:
+            type: integer
+            default: 0
+          required: true
+      responses:
+        200:
+          description: Returns true
+          content:
+            application/json:
+              schema:
+                type: boolean
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /sites/{siteid}/pricelists/{pricelistid}/pricelistitems.json:
+    get:
+      summary: Get Price Lists Items
+      tags:
+        - Price Lists
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: pricelistid
+          schema:
+            type: integer
+            default: 0
+          required: true
+        - in: query
+          name: start
+          description: The index of the item to start from.
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: num
+          description: The number of items returned.
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: fields
+          description: Comma separated list of fields to return. Use this to query only the fields you are using. See pricelistitem for all fields.
+          schema:
+            type: array
+            items:
+              type: string
+            default: [ "sku", "moneyprice" ]
+            example: /sites/{siteid}/pricelists/{pricelistid}/pricelistitems?fields=sku,moneyprice
+      responses:
+        200:
+          description: Returns an envelope with items of type pricelistitem for a pricelist, ordered by productid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalcount:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PriceListItem'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    put:
+      summary: Batch Set Price List Items
+      tags:
+        - Price Lists
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: pricelistid
+          schema:
+            type: integer
+            default: 0
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/PriceListItem'
+      responses:
+        200:
+          description: Returns true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    delete:
+      summary: Batch Delete Price List Items
+      tags:
+        - Price Lists
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: pricelistid
+          schema:
+            type: integer
+            default: 0
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  sku:
+                    type: string
+                    example: 36305-1
+      responses:
+        200:
+          description: Returns true or a batch envelope if array of objects was provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+
+  /sites/{siteid}/productgroups.json:
+    post:
+      summary: Add Product Group
+      tags:
+        - Product Groups (VAT)
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductGroup'
+      responses:
+        200:
+          description: Returns vatid
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: VatId
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    get:
+      summary: Get Product Groups
+      tags:
+        - Product Groups (VAT)
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: query
+          name: start
+          description: The index of the item to start from.
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: num
+          description: The number of items returned.
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: fields
+          description: Comma separated list of fields to return. Use this to query only the fields you are using. Default is all fields in productgroup.
+          schema:
+            type: array
+            items:
+              type: string
+            example: /sites/{siteid}/productgroups?fields=vatid,productgroupname,value
+      responses:
+        200:
+          description: Returns an envelope with items of type productgroup.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalcount:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProductGroup'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+
+  /sites/{siteid}/productgroups/{vatid}.json:
+    get:
+      summary: Get Product Group
+      tags:
+        - Product Groups (VAT)
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: vatid
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: Returns an item of type productgroup.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductGroup'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    put:
+      summary: Update Product Group
+      tags:
+        - Product Groups (VAT)
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: vatid
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductGroup'
+      responses:
+        200:
+          description: Returns true
+          content:
+            application/json:
+              schema:
+                type: boolean
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    delete:
+      summary: Delete Product Group
+      tags:
+        - Product Groups (VAT)
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: vatid
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: Returns true
+          content:
+            application/json:
+              schema:
+                type: boolean
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /sites/{siteid}/users.json:
+    get:
+      summary: Get Users
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: query
+          name: start
+          description: The index of the item to start from.
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: num
+          description: The number of items returned.
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: email
+          description: Filter on user email.
+          schema:
+            type: string
+        - in: query
+          name: customernumber
+          description: Filter on user customernumber.
+          schema:
+            type: string
+        - in: query
+          name: personalid
+          description: Filter on user personalid.
+          schema:
+            type: string
+        - in: query
+          name: mobile
+          description: Filter on user mobile.
+          schema:
+            type: string
+        - in: query
+          name: userid
+          description: Filter on users with matching user ID, use comma as separator for multiple values.
+          schema:
+            type: array
+            items:
+              type: string
+          example: /sites/{siteid}/users?userid={102DC4AA-2C19-3177-6AB2-435CB3A46499},{106BCAF2-7731-26CB-1FC6-7F0182FC31C7}
+        - in: query
+          name: fields
+          description: Comma separated list of fields to return. Use this to query only the fields you are using. See User for all fields.
+          schema:
+            type: array
+            items:
+              type: string
+            default: [ "userid", "email", "namefirst", "namelast", "company", "datecreated", "datemodified" ]
+            example: /sites/{siteid}/users?fields=userid,email,namefirst,namelast
+      responses:
+        200:
+          description: Returns an envelope with items of type User.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalcount:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    post:
+      summary: Batch Add Users
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: Returns userid or a batch envelope if multiple users were added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchAddUserResponse'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    put:
+      summary: Batch Update Users
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: Returns userid or a batch envelope if multiple users were added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /sites/{siteid}/users/{userid}.json:
+    get:
+      summary: Get User
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: userid
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: fields
+          description: Comma separated list of fields to return. Use this to query only the fields you are using. Default is all fields in User.
+          schema:
+            type: array
+            items:
+              type: string
+            example: /sites/{siteid}/users/{userid}?fields=userid,email,namefirst,namelast
+      responses:
+        200:
+          description: Returns an item of type User).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    put:
+      summary: Update User
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: userid
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: Returns true.
+          content:
+            application/json:
+              schema:
+                type: boolean
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    delete:
+      summary: Delete User
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: userid
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: Returns true.
+          content:
+            application/json:
+              schema:
+                type: boolean
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+
+  /orders.json:
+    get:
+      summary: Get All Orders
+      tags:
+        - Orders
+      parameters:
+        - in: query
+          name: eshopid
+          description: Filter on eshop ID, use comma as separator for multiple values.
+          example: /orders?eshopid=1
+          schema:
+            type: array
+            items:
+              type: integer
+        - in: query
+          name: externalid
+          description: Filter on external ID, use comma as separator for multiple values.
+          example: /orders?externalid=EXT987654321
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: orderid
+          description: Filter on orders with matching order ID, use comma as separator for multiple values.
+          example: /orders?orderid=12345,12351
+          schema:
+            type: array
+            items:
+              type: integer
+        - in: query
+          name: receiptid
+          description: Filter on order with matching receipt ID. Note! If this parameter is used, it will override the orderid parameter.
+          example: /orders?receiptid=SII000000150000110009
+          schema:
+            type: string
+        - in: query
+          name: creditorderid
+          description: Filter on orders with matching credit order ID, used for being able to validate what has been returned for an order. Note! If this parameter is used, it will override the orderid parameter.
+          schema:
+            type: integer
+        - in: query
+          name: orderidfrom
+          description: Filter on orders with order ID higher than or equal to the value provided
+          schema:
+            type: integer
+        - in: query
+          name: orderidto
+          description: Filter on orders with order ID lower than the value provided
+          schema:
+            type: integer
+        - in: query
+          name: orderdatefrom
+          description: Filter on orders with order date starting from the timestamp provided
+          schema:
+            type: integer
+        - in: query
+          name: orderdateto
+          description: Filter on orders with order date ending with the timestamp provided
+          schema:
+            type: integer
+        - in: query
+          name: ororderstate
+          description: Filter on order state, use comma as separator for multiple values.
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/OrderState'
+        - in: query
+          name: paymentstate
+          description: Filter on payment state, use comma as separator for multiple values.
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/PaymentState'
+        - in: query
+          name: ordertype
+          description: Filter on order type, use comma as separator for multiple values.
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/OrderType'
+        - in: query
+          name: warehouseid
+          description: Filter on order with matching warehouseid property, use comma as separator for multiple values.
+          schema:
+            type: array
+            items:
+              type: integer
+        - in: query
+          name: email
+          description: Filter on customer email address.
+          schema:
+            type: string
+        - in: query
+          name: start
+          description: The index of the item to start from
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: num
+          description: The number of items returned
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: sort
+          description: Sort the result.
+          schema:
+            type: string
+            enum: [orderid, -orderid]
+            default: -orderid
+        - in: query
+          name: fields
+          description: Comma separated list of fields to return. Use this to query only the fields you are using. See Order for all fields.
+          example: /orders?fields=orderid,ordertypeid,orderitems,payments,additionaldata
+          schema:
+            type: array
+            items:
+              type: string
+            default: [ "orderid", "eshopid", "email", "namefirst", "namelast", "company", "moneyfinal_net", "moneyfinal_vat", "moneytotal_gross_roundoff", "moneytotal_gross_all", "checkouttypename", "deliverytypename", "orderdate", "orderstateid", "paymentstateid", "ordertypeid", "registerid", "warehouseid", "datereserved", "currencycode", "orderitems", "payments", "reservedpayments", "additionaldata" ]
+      responses:
+        200:
+          description: Returns an envelope with items of type Order.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalcount:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Order'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /sites/{siteid}/orders.json:
+    post:
+      summary: Add Order
+      tags:
+        - Orders
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        200:
+          description: Returns orderid
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 11514
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /sites/{siteid}/orders/{orderid}.json:
+    get:
+      summary: Get Order
+      tags:
+        - Orders
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: orderid
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: Returns an item of type Order.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    put:
+      summary: Update Order
+      tags:
+        - Orders
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: orderid
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        200:
+          description: Returns true
+          content:
+            application/json:
+              schema:
+                type: boolean
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /orderdeliveries.json:
+    get:
+      summary: Get All Order Deliveries
+      tags:
+        - Orders
+      parameters:
+        - in: query
+          name: orderid
+          description: Filter on orders with matching order ID, use comma as separator for multiple values.
+          example: /orderdeliveries?orderid=12345,12351
+          schema:
+            type: array
+            items:
+              type: integer
+          required: true
+        - in: query
+          name: fields
+          example: /orderdeliveries?fields=orderdeliveryid,orderid,state
+          schema:
+            type: array
+            items:
+              type: string
+            default: [ "orderdeliveryid", "orderid", "warehouseid", "orderdeliveryref", "datedelivery", "datecancelled", "pluginname", "state", "ignorestock", "binlocation", "orderdeliveryitems" ]
+      responses:
+        200:
+          description: Returns an envelope with items of type OrderDelivery for the order IDs specified.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalcount:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderDelivery'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /sites/{siteid}/orders/{orderid}/orderdeliveries.json:
+    post:
+      summary: Add Order Delivery
+      tags:
+        - Orders
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: orderid
+          schema:
+            type: integer
+          required: true
+        - in: query
+          name: ignorestock
+          description: If set to true, the warehouse stock for the items included will not be affected by this delivery. This has been deprecated in favor of using the ignorestock property for the delivery. Note that if this parameter is provided, it will override the property of the object.
+          schema:
+            type: boolean
+            default: false
+        - in: query
+          name: store_externalid
+          description: The store_externalid property added to the OrderLogItemDeliverySource object for an order log item.
+          schema:
+            type: string
+        - in: query
+          name: pos_staff_userid
+          description: The pos_staff_userid property added to the the OrderLogItemDeliverySource object for an order log item.
+          schema:
+            type: string
+        - in: query
+          name: pos_staff_externalid
+          description: The pos_staff_externalid property added to the the OrderLogItemDeliverySource object for an order log item.
+          schema:
+            type: string
+        - in: query
+          name: reasoncode
+          description: The reasoncode property added to the the OrderLogItemDeliverySource object for an order log item.
+          schema:
+            type: string
+        - in: query
+          name: reasoncomment
+          description: The reason comment property added to the the OrderLogItemDeliverySource object for an order log item.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderDelivery'
+      responses:
+        200:
+          description: Returns orderdeliveryid
+          content:
+            application/json:
+              schema:
+                type: integer
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    get:
+      summary: Get Order Deliveries
+      tags:
+        - Orders
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: orderid
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: Returns an envelope with items of type OrderDelivery for an order.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalcount:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderDelivery'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /sites/{siteid}/orders/{orderid}/orderdeliveries/{orderdeliveryid}.json:
+    put:
+      summary: Update Order Delivery
+      tags:
+        - Orders
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: orderid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: orderdeliveryid
+          schema:
+            type: integer
+          required: true
+        - in: query
+          name: store_externalid
+          description: The store_externalid property added to the OrderLogItemDeliverySource object for an order log item.
+          schema:
+            type: string
+        - in: query
+          name: pos_staff_userid
+          description: The pos_staff_userid property added to the the OrderLogItemDeliverySource object for an order log item.
+          schema:
+            type: string
+        - in: query
+          name: pos_staff_externalid
+          description: The pos_staff_externalid property added to the the OrderLogItemDeliverySource object for an order log item.
+          schema:
+            type: string
+        - in: query
+          name: reasoncode
+          description: The reasoncode property added to the the OrderLogItemDeliverySource object for an order log item.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderDelivery'
+      responses:
+        200:
+          description: Returns true
+          content:
+            application/json:
+              schema:
+                type: boolean
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /sites/{siteid}/orders/{orderid}/orderlogitems.json:
+    post:
+      summary: Add Order Log Item
+      tags:
+        - Orders
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: orderid
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderLogItem'
+      responses:
+        200:
+          description: Returns true
+          content:
+            application/json:
+              schema:
+                type: boolean
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    get:
+      summary: Get Order Log Items
+      tags:
+        - Orders
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: orderid
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: Returns an envelope with items of type OrderLogItem for an order.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalcount:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OrderLogItem'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /pos-z-reports.json:
+    get:
+      summary: Get POS Z-reports
+      description: Endpoint for retrieving POS Z-reports. The items returned are always sorted by dateadded in ascending order. Note! The maximum number of items returned is 500. If maximum number of items is returned, either try using a narrower filter for your query, or simply use the dateadded property for the last retrieved item to filter out the next items.
+      tags:
+        - Z-reports
+      parameters:
+        - in: query
+          name: eshopid
+          description: Filter on eshopid. Use comma as separator for multiple values.
+          example: /pos-z-reports?eshopid=1,2
+          schema:
+            type: array
+            items:
+              type: integer
+        - in: query
+          name: store_id
+          description: Filter on store_id (external ID of the Store in Sitoo). Use comma as separator for multiple values.
+          example: /pos-z-reports?store_id=100,299
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: registerid
+          description: Filter on z-reports generated from a specific registerid. Use comma as separator for multiple values.
+          example: /pos-z-reports?registerid={DBFA5E0C-0BB4-431C-9EB3-471F88AE222E},{7460F103-24F2-4775-A945-A3534732F7B8}
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: dateaddedfrom
+          description: Filter on z-reports with dateadded starting on or after the timestamp provided.
+          schema:
+            type: integer
+        - in: query
+          name: dateaddedto
+          description: Filter on z-reports with dateadded ending on or before the timestamp provided.
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Returns an array with objects of type PosZReport
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PosZReport'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /pos-z-reports/{registerid}/{zreportid}.json:
+    get:
+      summary: Get POS Z-report
+      description: Endpoint for retrieving one POS Z-report.
+      tags:
+        - Z-reports
+      parameters:
+        - in: path
+          name: registerid
+          description: The ID of the register.
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: zreportid
+          description: The ID of the POS Z-report.
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: Returns an object of type PosZReport
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PosZReport'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /store-z-reports.json:
+    get:
+      summary: Get Store Z-reports
+      description: Endpoint for retrieving aggregated z-reports for stores. The items returned are always sorted by day_created in descending order. Also note that the store_id property for POS Z-reports missing a valid value will all be aggregated to a Store Z-report with the store_id value of NO_STORE. Note! If the day filter is not provided, then the number of returned items is limited to 100.
+      tags:
+        - Z-reports
+      parameters:
+        - in: query
+          name: store_id
+          description: Filter on store_id (external ID of the Store in Sitoo). Use comma as separator for multiple values.
+          example: /store-z-reports?store_id=100,299
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: day
+          description: Filter on day
+          schema:
+            type: string
+      responses:
+        200:
+          description: Returns an array with objects of type StoreZReport
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StoreZReport'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /store-z-reports/{store_zreport_id}.json:
+    get:
+      summary: Get Store Z-report
+      description: Endpoint for retrieving an aggregated Store Z-report.
+      tags:
+        - Z-reports
+      parameters:
+        - in: path
+          name: store_zreport_id
+          description: The ID of the Store Z-report.
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: Returns an object of type StoreZReport
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreZReport'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /store-z-reports/config.json:
+    get:
+      summary: Get Store Z-report Configuration
+      description: Endpoint for retrieving configuration for Store Z-report service
+      tags:
+        - Z-reports
+      responses:
+        200:
+          description: Returns an object of type StoreZReportConfig
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreZReportConfig'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    put:
+      summary: Set Store Z-report Configuration
+      description: Endpoint for setting configuration for Store Z-report service
+      tags:
+        - Z-reports
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreZReportConfig'
+      responses:
+        200:
+          description: Returns the updated object of type StoreZReportConfig
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreZReportConfig'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    Money:
+      type: string
+      pattern: ^[-+]?[0-9]+\.[0-9]{2}$
+      example: "123.00"
+    Site:
+      type: object
+      properties:
+        siteid:
+          type: string
+          description: |
+            Site ID. This ID has been deprecated and eshopid should be used in its place for API endpoint URLs where {siteid} is specified.
+          deprecated: true
+          readOnly: true
+        protocol:
+          type: string
+          description: Site protocol (e.g., http or https).
+          readOnly: true
+        server:
+          type: string
+          description: Server (domain).
+          readOnly: true
+        abspath:
+          type: string
+          description: Absolute path.
+          readOnly: true
+        siteurl:
+          type: string
+          description: |
+            Request to the site (protocol + "://" + server + abspath).
+          readOnly: true
+        eshopid:
+          type: integer
+          description: |
+            Eshop ID. This ID should be used in place of siteid in API endpoint URLs where {siteid} is specified.
+          readOnly: true
+    Product:
+      type: object
+      properties:
+        productid: 
+          type: integer
+          description: The unique internal product ID. It is unique over all sites in the system. The productid is read-only and automatically generated when adding new products. It is then used as the identifier field for update/delete endpoints.
+          readOnly: true
+        sku: 
+          type: string
+          description: Stock Keeping Unit (ie. the article number). Should only contain [A-Za-z0-9_+-/]. The sku is a required field for adding new products and needs to be unique within a site.
+        skumanufacturer: 
+          type: string
+          description: The Stock Keeping Unit (SKU) for the manufacturer.
+        descriptionshort:
+          type: string
+          description: A short description, typically used in product lists etc.
+        description: 
+          type: string
+          description: The main description of the product.
+        descriptionhtml:
+          type: string
+          description: An extra description field for adding custom html such as embedded videos etc.
+          deprecated: true
+        deliverystatus: 
+          type: string
+          description: Delivery status.
+          deprecated: true
+        moneyprice: 
+          $ref: "#/components/schemas/Money"
+          description: Price of the product. If this field is used for setting price on a product, the price will be set for the "Default" price list. It is recommended to use the Price Lists endpoints for setting product prices instead. 
+        moneypriceorg: 
+          $ref: "#/components/schemas/Money"
+          description: Suggested Retail Price (SRP)
+        moneypricein: 
+          $ref: "#/components/schemas/Money"
+          description: Purchase price which can be used to help calculate profit on products. (Always excluding VAT)
+        unitlabel: 
+          type: string
+          description: Unit label (eg. "pcs", "kg"). Default is an empty string.
+        allowdecimals: 
+          type: boolean
+          description: Set this if the product can be purchased with fractional quantity.
+        deliveryinfo: 
+          type: string
+          description: Delivery information that can be provided to the customer after the purchase.
+        externalinputtitle: 
+          type: string
+          description: External input title is a text that the customer can add to the product in the cart (eg. for a t-shirt it could be an optional custom text).
+          deprecated: true
+        offerisenabled: 
+          type: boolean
+          description: Turn on or off the offer mechanism. (Deprecated, use price lists instead)
+          deprecated: true
+        moneyofferprice: 
+          $ref: "#/components/schemas/Money"
+          description: If the product is in offer mode, the offerprice will be used instead of the price. The product is in offer mode if enabled and within the offer date period. (Deprecated, use price lists instead)
+          deprecated: true
+        offertitle: 
+          type: string
+          description: Title of offer (eg. "Summer Campaign"). (Deprecated, use price lists instead)
+          deprecated: true
+        offerdatestart: 
+          type: integer
+          nullable: true
+          description: Start date of offer. If null then no start boundary is set. (Deprecated, use price lists instead)
+          deprecated: true
+        offerdateend: 
+          type: integer
+          nullable: true
+          description: End date of offer. The last day the offer is still active. If null then no end boundary is set. To turn off date check for offers just set offerdatestart and offerdateend to null. (Deprecated, use price lists instead)
+          deprecated: true
+        active: 
+          type: boolean
+          description: If false, the product is not shown in in the Webshop.
+          deprecated: true
+        activepos: 
+          type: boolean
+          description: If false, the product is not shown in in the POS.
+        vatid: 
+          type: integer
+          format: int32
+          description: The reference to which Product Group the product belongs to. The Product Group also determines VAT. See productgroup for more information.
+        deliveryclassid: 
+          type: integer
+          format: int32
+          description: The reference to the delivery class ID. The ID is used when calculating the shipping price.
+          deprecated: true
+        defaultcategoryid: 
+          type: integer
+          nullable: true
+          description: Default category for the product. If set to a category then the value will also be added to categories. If set to null, then the previous value will be removed from categories.
+        categories: 
+          type: array
+          description: Array of category ID:s that the product belongs to.
+          items: 
+            type: integer
+        manufacturerid: 
+          type: string
+          nullable: true
+          description: The reference to the manufacturer.
+        manufacturerurl: 
+          type: string
+          description: Manufacturer's url for the product.
+        custom1: 
+          type: string
+        custom2: 
+          type: string
+        custom3: 
+          type: string
+        custom4: 
+          type: string
+        custom5: 
+          type: string
+        stockcountenable: 
+          type: boolean
+          description: Turns on/off stock handling for the product.
+        stockallowbackorder: 
+          type: boolean
+          description: Decides if a product can be backorder listed. If not, it is not displayed when out of stock.
+          deprecated: true
+        variantparentid: 
+          type: integer
+          description: If null then it is a single product, otherwise it is a variant. Variantparentid refers to the owning parent's productid. The product which has a self reference (ie. the variantparentid is same as the produtid) is the main variant (ie. the owner).
+          nullable: true
+          readOnly: true
+        barcode: 
+          type: string
+          description: Barcode for the product.
+          nullable: true
+        barcodealiases: 
+          type: array
+          description: Barcode aliases for the product. Used if multiple barcodes exist for product.
+          items: 
+            type: string
+        similar: 
+          type: array
+          description: Array of product ID:s for products that are similar to this one. (Only applicable to regular products and main product variants)
+          items: 
+            type: integer
+        related: 
+          type: array
+          description: Array of product ID:s for products that are related to this one. (Only applicable to regular products and main product variants)
+          items: 
+            type: integer
+        accessories: 
+          type: array
+          description: Array of product ID:s for products that are accessories to this one. (Only applicable to regular products and main product variants)
+          items: 
+            type: integer
+        offerisactive: 
+          type: boolean
+          description: Indicates if the product is in offer mode or not.
+          deprecated: true
+          readOnly: true
+        moneyfinalprice:
+          $ref: "#/components/schemas/Money"
+          description: The final price of the product. If in offer mode then the final price is offerprice else price. (Deprecated, use price lists instead)
+          deprecated: true
+          readOnly: true
+        vatvalue: 
+          type: number
+          description: The VAT in percentage.
+          readOnly: true
+        productgrouptype: 
+          type: integer
+          description: The product group type.
+          readOnly: true
+        pricelisthasvolume: 
+          type: boolean
+          description: True if product has volume pricing. (Deprecated, use price lists instead)
+          deprecated: true
+          readOnly: true
+        variant: 
+          type: array
+          description: Array of variant items.
+          readOnly: true
+          items: 
+            type: object
+            properties: 
+              name: 
+                type: string
+              value: 
+                type: string
+        customattributes:
+          type: object
+          description: Map of attribute values for the product. The keys must exist as ID of attributes defined. The value type is defined by the attribute. The limit of string values is 128 characters.
+          additionalProperties:
+            type: object 
+        friendly: 
+          type: string
+          description: Friendly name. Absolute url = site url + friendly.
+          deprecated: true
+        seo_title: 
+          type: string
+          description: Used for the html title element. If empty the title field will be used instead.
+          deprecated: true
+        seo_keywords: 
+          type: string
+          description: Meta keywords.
+          deprecated: true
+        seo_description:
+          type: string
+          description: Meta description.
+          deprecated: true
+        title: 
+          type: string
+          description: Title of product (ie. Product Name).
+        datecreated: 
+          type: integer
+          description: Timestamp when the product was created.
+          readOnly: true
+        datemodified: 
+          type: integer
+          description: Timestamp when the product was last modified.
+          readOnly: true
+    BatchAddProductResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          statuscode:
+            type: integer
+          return:
+            type: integer
+    BatchAddUserResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          userid:
+            type: string
+          externalid:
+            type: string
+    BatchUpdateUserResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          statuscode:
+            type: integer
+          return:
+            type: string
+    BatchResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          statuscode:
+            type: integer
+          return:
+            type: boolean
+    PriceList:
+      type: object
+      properties:
+          pricelistid: 
+            type: integer
+            description: Price list ID (default pricelist has ID 1 on all systems).
+            readOnly: true
+          pricelistname: 
+            type: string
+            description: Price list name.
+          pricelistdescription: 
+            type: string
+            description: Price list description.
+          active: 
+            type: boolean
+            description: If true, the price list is active.
+          externalid: 
+            type: string
+            description: External ID of price list (if applicable, otherwise null).
+            nullable: true
+          currencycode: 
+            type: string
+            description: Currency of the price list (ISO 4217, alpha-3 uppercased).
+          tags: 
+            type: array
+            items: 
+              type: string
+              pattern: ^[A-Z0-9_-]{1,16}$
+    PriceListItem:
+      type: object
+      description: Price list item for a pricelist
+      required:
+        - moneyprice
+      properties:
+        productid:
+          type: integer
+          description: Product ID for the price list item.
+        moneyprice:
+          $ref: "#/components/schemas/Money"
+          description: The price for the product.
+        moneypricevolume:
+          type: array
+          description: Volume pricing for the price list item. Array of volumepricelevel.
+          items:
+            $ref: '#/components/schemas/VolumePriceLevel'
+        sku:
+          type: string
+          description: SKU for the price list item.
+    VolumePriceLevel:
+      type: object
+      description: Volume price level of a pricelistitem
+      properties:
+        levelstart:
+          type: integer
+          description: The quantity threshold to activate this price.
+        moneyprice:
+          $ref: "#/components/schemas/Money"
+          description: The price of the product at this quantity.
+    ProductGroup:
+      type: object
+      description: A product group contains the VAT and type for a product.
+      required:
+        - productgroupname
+      properties:
+          vatid: 
+            type: integer
+            readOnly: true
+            description: The ID of the product group (vatid).
+          value: 
+            type: integer
+            description: VAT percentage (eg. 25 = 25%).
+          productgrouptype: 
+            type: integer
+            $ref: "#/components/schemas/ProductGroupType"
+            description: The type of the product group.
+          productgroupname: 
+            type: string
+            description: The name of the product group.
+          comment: 
+            type: string
+            description: Internal comment.
+    ProductGroupType:
+      type: integer
+      enum:
+        - 10
+        - 20
+        - 30
+        - 40
+      x-ms-enum:
+        name: ProductGroupType
+        modelAsString: false
+        values:
+          - value: 10
+            name: Product
+          - title: 20
+            const: Service
+          - title: 30
+            const: Gift Card
+          - title: 40
+            const: Deposit
+    User:
+      type: object
+      description: Users are common to all sites in a system. Roles and access rights are set per site.
+      properties:
+        userid:
+          type: string
+          readOnly: true
+          description: Unique ID of user.
+        email:
+          type: string
+          description: Email for user. Must be unique.
+        namefirst:
+          type: string
+          description: First name.
+        namelast:
+          type: string
+          description: Last name.
+        personalid:
+          type: string
+          description: Personal ID.
+        externalid:
+          type: string
+          nullable: true
+          description: External ID or null if not used.
+        company:
+          type: string
+          description: Company name.
+        department:
+          type: string
+          description: Department.
+        companyid:
+          type: string
+          description: Organization ID.
+        address:
+          type: string
+          description: Address.
+        address2:
+          type: string
+          description: Extra address field.
+        zip:
+          type: string
+          description: Zip or postal code.
+        city:
+          type: string
+          description: City.
+        state:
+          type: string
+          description: State or region.
+        countryid:
+          type: string
+          description: Country ID (ISO 3166-1, alpha-2).
+        phone:
+          type: string
+          description: Phone number.
+        mobile:
+          type: string
+          description: Mobile phone number.
+        notes:
+          type: string
+          description: Internal notes about the user.
+        pin:
+          type: string
+          writeOnly: true
+          description: Personal Identification Number (4 or 6 digits). Must be unique.
+        customernumber:
+          type: string
+          description: Customer number.
+        datecreated:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Creation date.
+        datemodified:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Last modified date.
+        pricelistid:
+          type: integer
+          deprecated: true
+          description: Price list ID. (Deprecated, use voucherpasswords to activate price lists for customer in Sitoo POS)
+        voucherpasswords:
+          type: array
+          items:
+            type: string
+          description: Array of voucher passwords (string) used to activate campaigns for customer in Sitoo POS.
+        role:
+          $ref: '#/components/schemas/UserRole'
+          description: The access role for this user, or null if not applicable. Note! This property is applied per site (eshop).
+        warehouses:
+          type: array
+          items:
+            type: integer
+          description: An array of warehouse IDs that the Store Manager or Store Staff should have access to. Other roles will not be affected by this property. Note! This property is applied per site (eshop).
+        posrefundcard:
+          type: boolean
+          default: false
+          description: If true, the user has the right to perform refund for card payments in Sitoo POS. Note! This property is applied per site (eshop).
+        posallstores:
+          type: boolean
+          default: false
+          description: If true, the user will have POS login access for all stores. Note! This setting is only applicable when username/password or OIDC is being used for authentication in the POS. Note! This property is applied per site (eshop).
+        active:
+          type: boolean
+          default: true
+          description: If false, the user will not be allowed to login (disregarding all other settings). Note! This property is applied per site (eshop).
+      required:
+        - email
+    UserRole:
+      type: integer
+      enum:
+        - 10
+        - 20
+        - 30
+        - 40
+      x-ms-enum:
+        name: UserRole
+        modelAsString: false
+        values:
+          - value: 10
+            name: Admin
+          - value: 20
+            name: Staff
+          - value: 30
+            name: StoreManager
+          - value: 40
+            name: StoreStaff
+    Order:
+      type: object
+      properties:
+        orderid: 
+          type: integer
+          readOnly: true
+          description: The ID of the order. The order ID is unique for a system.
+        eshopid: 
+          type: integer
+          readOnly: true
+          description: The eshopid that this order belongs to.
+        externalid: 
+          type: string
+          nullable: true
+          description: External ID for the order. The externalid is unique for a system and can only contain [A-Za-z0-9_-] with a length of 1-40 characters.
+        creditorderid: 
+          type: string
+          nullable: true
+          description: The ID of the order that was the source of this refund.
+        checkouttypeid: 
+          type: integer
+          readOnly: true
+          deprecated: true
+          description: Checkout type ID (Webshop orders only).
+        deliverytypeid: 
+          type: integer
+          readOnly: true
+          deprecated: true
+          description: Delivery type ID (Webshop orders only).
+        email: 
+          type: string
+        namefirst: 
+          type: string
+        namelast: 
+          type: string
+        personalid: 
+          type: string
+          description: Personal Number or Organizational ID.
+        company: 
+          type: string
+        phone: 
+          type: string
+        invoice_address: 
+          type: string
+        invoice_address2: 
+          type: string
+        invoice_zip: 
+          type: string
+        invoice_city: 
+          type: string
+        invoice_state: 
+          type: string
+        invoice_countryid: 
+          type: string
+          description: Invoice Country ID (2-letter ISO 3166).
+        delivery_address: 
+          type: string
+        delivery_address2: 
+          type: string
+        delivery_zip: 
+          type: string
+        delivery_city: 
+          type: string
+        delivery_state: 
+          type: string
+        delivery_countryid: 
+          type: string
+          description: Delivery Country ID (2-letter ISO 3166).
+        comment: 
+          type: string
+          description: Order comment.
+        commentinternal: 
+          type: string
+          description: Internal staff comment.
+        customerref: 
+          type: string
+          description: Customer Reference.
+        checkoutref: 
+          type: string
+          description: Checkout Reference (typically set by payment providers).
+        moneytotal_net: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+          description: Total net value for items (no checkout or payment cost is included).
+        moneytotal_vat: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+        moneycheckout_net: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+        moneycheckout_vat: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+        moneytotal_gross_checkout: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+          description: Total checkout value (ie. checkout_net + checkout_vat).
+        moneydelivery_net: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+        moneydelivery_vat: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+        moneytotal_gross_delivery: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+        moneyfinal_net: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+        moneyfinal_vat: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+        moneyfinal_salestax: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+        moneytotal_gross_roundoff: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+        moneytotal_gross_all: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+        checkouttypename: 
+          type: string
+          deprecated: true
+        checkoutmethodid: 
+          type: integer
+          readOnly: true
+          deprecated: true
+        checkoutmethodsubid: 
+          type: integer
+          readOnly: true
+          deprecated: true
+        deliverytypename: 
+          type: string
+          deprecated: true
+        orderdate: 
+          type: integer
+        orderstateid: 
+          $ref: '#/components/schemas/OrderState'
+        paymentstateid: 
+          $ref: '#/components/schemas/PaymentState'
+        ordertypeid: 
+          $ref: '#/components/schemas/OrderType'
+        userid_staff: 
+          type: string
+          readOnly: true
+          description: User ID for the staff that is responsible for the order and should get credit for it.
+        registerid: 
+          type: string
+          readOnly: true
+        warehouseid: 
+          type: string
+          nullable: true
+        datereserved: 
+          type: string
+          nullable: true
+        currencycode: 
+          type: string
+          description: Currency for the order. (ISO 4217, alpha-3 uppercased) If not provided, defaults to system currency.
+        additionaldata: 
+          type: object #TODO
+        orderitems: 
+          type: array
+          items: 
+            $ref: '#/components/schemas/OrderItem'
+        payments: 
+          type: array
+          items: 
+            $ref: '#/components/schemas/OrderPayment'
+        reservedpayments: 
+          type: array
+          items: 
+            $ref: '#/components/schemas/OrderReservedPayment'
+        orderlogitems: 
+          type: array
+          items: 
+            $ref: '#/components/schemas/OrderLogItem'
+    OrderDelivery:
+      type: object
+      required:
+        - warehouseid
+        - orderdeliveryitems
+      description: Delivery for order.
+      properties:
+        orderdeliveryid:
+          type: integer
+          description: The order delivery ID is unique for a system.
+          readOnly: true
+        state:
+          type: string
+          description: >-
+            The state of the order delivery. When setting the state to delivered,
+            the datedelivery property will be set and a warehouse transaction affecting stock
+            will be done (unless ignorestock has been set to true).
+          default: "delivered"
+        orderid:
+          type: integer
+          description: The order ID for which this delivery was made.
+          readOnly: true
+        warehouseid:
+          type: integer
+          description: The warehouse ID for this order delivery.
+        ignorestock:
+          type: boolean
+          description: If set to true, there will be no warehouse transaction done for this delivery.
+          default: false
+        orderdeliveryref:
+          type: string
+          description: Delivery reference (waybill no. or similar tracking number).
+          default: ""
+        binlocation:
+          type: string
+          description: Bin location for the delivery (used for locating a package during customer pickup).
+          default: ""
+        datedelivery:
+          type: string
+          format: date-time
+          description: The date of the order delivery (when the state was set to delivered).
+          readOnly: true
+        datecancelled:
+          type: string
+          format: date-time
+          description: The date the delivery was cancelled, or null if not cancelled.
+          readOnly: true
+        pluginname:
+          type: string
+          description: Name of plugin that handles this delivery.
+          readOnly: true
+        orderdeliveryitems:
+          type: array
+          description: Array of delivery items for this delivery. See OrderDeliveryItem for fields.
+          items:
+            $ref: '#/components/schemas/OrderDeliveryItem'
+    OrderDeliveryItem:
+      type: object
+      description: Delivery item for order delivery.
+      required:
+        - orderitemid
+        - quantity
+      properties:
+        orderdeliveryitemid:
+          type: integer
+          description: Order delivery item ID.
+          readOnly: true
+        orderdeliveryid:
+          type: integer
+          description: Order delivery ID.
+          readOnly: true
+        orderitemid:
+          type: integer
+          description: Order item ID.
+        quantity:
+          type: integer
+          description: Quantity delivered.
+    OrderReservedPayment:
+      type: object
+      description: Reserved payment for order.
+      required:
+        - id
+        - name
+        - moneyreserved
+      properties:
+        id:
+          type: string
+          description: The reference (ID) of the reserved payment
+        name:
+          type: string
+          description: The name of the reserved payment
+        moneyreserved:
+          $ref: "#/components/schemas/Money"
+          description: The amount of the reserved payment
+        externalid:
+          type: string
+          description: External ID for the reserved payment (if applicable)
+          nullable: true
+        reftype:
+          type: string
+          description: The reference type of the reserved payment (if applicable)
+          nullable: true
+        refid:
+          type: string
+          description: The reference transaction id of the reserved payment (if applicable)
+          nullable: true
+        cardissuer:
+          type: string
+          description: The card issuer (if applicable)
+          nullable: true
+        additionaldata:
+          type: object
+          description: Additional data for this reserved payment. See OrderPayment for system keys.
+          additionalProperties:
+            type: object
+            description: Custom properties are allowed if the value is of type string
+          default: {}
+    OrderItem:
+      type: object
+      required:
+        - productname
+        - quantity
+      properties:
+        orderitemid: 
+          type: integer
+          readOnly: true
+        orderitemtype: 
+          $ref: '#/components/schemas/OrderItemType'
+        productid: 
+          type: integer
+          readOnly: true
+        productname: 
+          type: string
+        sku: 
+          type: string
+        productattributes: 
+          type: string
+        externalinput: 
+          type: string
+        externalinputtitle: 
+          type: string
+        unitlabel: 
+          type: string
+        quantity: 
+          type: integer
+        decimalunitquantity: 
+          type: string
+          nullable: true
+        moneynetpriceperunit: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+        moneypriceorg: 
+          $ref: "#/components/schemas/Money"
+          deprecated: true
+        vatvalue: 
+          type: number
+        deliveryinfo: 
+          type: string
+        moneyitemtotal_net: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+        moneyitemtotal_vat: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+        vouchercode: 
+          type: string
+        vouchername: 
+          type: string
+        vouchercomment:
+          type: string
+        ispercentage:
+          type: boolean
+          deprecated: true
+        moneyoriginalprice: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+        moneydiscountedprice: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+        moneydiscount: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+        salestaxes: 
+          type: array
+          items: 
+            $ref: '#/components/schemas/OrderItemSalesTax'
+        additionaldata: 
+          type: object
+          properties: 
+            orderitem-moneyrowdiscount: 
+              type: string
+        decimalquantitytotal: 
+          type: string
+          readOnly: true
+        moneynetpriceperquantity: 
+          $ref: "#/components/schemas/Money"
+          readOnly: true
+        moneyrowprice:
+          $ref: "#/components/schemas/Money"
+        moneyrowdiscount:
+          $ref: "#/components/schemas/Money"
+    OrderItemSalesTax:
+      type: object
+      description: Sales tax for an order item.
+      properties:
+        name:
+          type: string
+          description: The name of the sales tax.
+        code:
+          type: string
+          description: An identifier that can be used to specify the sales tax.
+          default: ""
+        externalid:
+          type: string
+          nullable: true
+          description: A custom value to make it easier to export to external systems.
+        groupregion:
+          type: string
+          nullable: true
+          description: The region of the sales tax group this sales tax item belongs to.
+        moneytotal:
+          $ref: "#/components/schemas/Money"
+          description: The total sales the collected tax is calculated on (i.e., the sales with no tax).
+        moneytax:
+          $ref: "#/components/schemas/Money"
+          description: The total net money value for this sales tax.
+        decimaltaxvalue:
+          type: string
+          description: The tax value in percent.
+      required:
+        - name
+        - moneytotal
+        - moneytax
+        - decimaltaxvalue
+    OrderLogItem:
+      type: object
+      description: Order log item for an order.
+      properties:
+        datelog:
+          type: string
+          format: date-time
+          description: Date and time of log entry.
+          readOnly: true
+        orderid:
+          type: integer
+          description: Order ID.
+          readOnly: true
+        orderlogtypeid:
+          $ref: '#/components/schemas/OrderLogType'
+          description: >-
+            Type of order log item. All types are read-only except for 900 (ReadyForPickup) and 910 (PickupRejected).
+        strvalue:
+          type: string
+          nullable: true
+          description: String value.
+        fvalue:
+          type: number
+          nullable: true
+          description: Numeric value.
+      required:
+        - orderlogtypeid
+    OrderLogItemDeliverySource:
+      type: object
+      description: Object holding the source information and changes for an order log item regarding a delivery action.
+      properties:
+        orderdeliveryid:
+          type: integer
+          description: Order delivery ID.
+        state:
+          type: string
+          description: The state of the delivery (after the event). See OrderDeliveryState for values.
+        warehouseid:
+          type: integer
+          description: The warehouse ID used for this order delivery.
+        ignorestock:
+          type: boolean
+          description: If set to true there will be no warehouse transaction done for the delivery.
+        orderdeliveryref:
+          type: string
+          description: Delivery reference (waybill no. or similar tracking number).
+        binlocation:
+          type: string
+          description: Bin location for the delivery (used for locating a package during customer pickup).
+        store_externalid:
+          type: string
+          description: External ID for the store where the delivery was handled.
+        pos_staff_userid:
+          type: string
+          description: User ID for the POS staff that handled the delivery.
+        pos_staff_externalid:
+          type: string
+          description: External ID for the POS staff that handled the delivery.
+        reasoncode:
+          type: string
+          description: Reason code for this order delivery action.
+        reasoncomment:
+          type: string
+          description: Reason comment for this order delivery action.
+      required:
+        - orderdeliveryid
+        - state
+    OrderPayment:
+      type: object
+      description: Payment for order.
+      properties:
+        name:
+          type: string
+          description: The name of the payment.
+        moneyamount:
+          $ref: "#/components/schemas/Money"
+          description: The amount of the payment.
+        externalid:
+          type: string
+          nullable: true
+          description: External ID for the payment (if applicable).
+        reftype:
+          type: string
+          nullable: true
+          description: The reference type of the payment (if applicable).
+        refid:
+          type: string
+          nullable: true
+          description: The reference transaction ID of the payment (if applicable).
+        cardissuer:
+          type: string
+          nullable: true
+          description: The card issuer (if applicable).
+        additionaldata:
+          type: object
+          description: >-
+            Additional data for this payment. Other properties are allowed as long as their values are of type string.
+          additionalProperties:
+            type: string
+          properties:
+            adyen-amountcurrency:
+              type: string
+              description: Currency code used for original Adyen payment.
+            adyen-cardalias:
+              type: string
+              description: Adyen card number token.
+            adyen-cardtype:
+              type: string
+              description: Adyen card type.
+            adyen-paymentmethod:
+              type: string
+              description: Adyen payment method.
+            adyen-paymentmethodvariant:
+              type: string
+              description: Adyen payment method variant.
+            adyen-poiid:
+              type: string
+              description: Unique ID of the terminal that processed the original Adyen payment.
+            adyen-pspreference:
+              type: string
+              description: Adyen PSP reference.
+            adyen-tenderreference:
+              type: string
+              description: Adyen tender reference.
+            adyen-txdate:
+              type: string
+              description: Adyen transaction date (ISO-8601).
+            bambora-host2t-internalreference:
+              type: string
+              description: Internal reference for the payment in Bambora Terminal.
+            bambora-host2t-terminalid:
+              type: string
+              description: ID for the Bambora Terminal.
+            coiney-transactionref:
+              type: string
+              description: Transaction reference for Coiney payment.
+            custompayment-mobile:
+              type: string
+              description: Mobile number used for custom payment.
+            custompayment-paymentid:
+              type: string
+              description: ID for custom payment.
+            foreign-currency-amount:
+              type: string
+              description: The amount for the payment in the foreign currency.
+            foreign-currency-code:
+              type: string
+              description: The foreign currency used for the payment (ISO 4217, alpha-3 uppercased).
+            foreign-currency-exchange-rate:
+              type: string
+              description: The exchange rate for the foreign currency payment.
+            giftcard-cardnumber:
+              type: string
+              description: Card number of gift card used for payment.
+            giftcard-cardnumber-display:
+              type: string
+              description: The masked card number of gift card used for payment.
+            izettle-panhash:
+              type: string
+              description: PAN hash value for iZettle.
+            izettle-sitooreference:
+              type: string
+              description: The Sitoo instance reference for the payment in iZettle.
+            klarna-klarnareference:
+              type: string
+              description: Klarna order reference.
+            klarna-merchantid:
+              type: string
+              description: Klarna merchant ID.
+            klarna-orderid:
+              type: string
+              description: Klarna order ID.
+            klarnav2-id:
+              type: string
+              description: Klarna ID for payment made with legacy v2 API.
+            mobile:
+              type: string
+              description: Mobile number used for payment.
+            mobilepay-paymentid:
+              type: string
+              description: The ID for the MobilePay payment.
+            nets-amount:
+              type: string
+              description: The amount for the payment in Nets Terminal.
+            nets-issuerid:
+              type: string
+              description: Property issuerId from LocalModeEventArgs in Nets Terminal.
+            nets-sitooreference:
+              type: string
+              description: The Sitoo instance reference for the payment in Nets Terminal.
+            nets-terminalid:
+              type: string
+              description: Property terminalID from LocalModeEventArgs in Nets Terminal.
+            payment-cardmaskedpan:
+              type: string
+              description: The masked card number for the card payment.
+            payment-method:
+              type: string
+              description: The payment method used for this payment.
+            pos-originalsales-payment-index:
+              type: string
+              description: Index referring to the payment from the original purchase being returned.
+            swish-paymentid:
+              type: string
+              description: The ID for the Swish payment.
+            verifone-lpp-reference-number:
+              type: string
+              description: Reference number for the payment in Verifone Terminal.
+            verifone-card-masked-pan:
+              type: string
+              description: The masked card number for the payment in Verifone Terminal.
+            vipps-paymentid:
+              type: string
+              description: The ID for the Vipps payment in Sitoo.
+            vipps-orderid:
+              type: string
+              description: The Order ID for the Vipps payment.
+            vipps-transactionid:
+              type: string
+              description: The Transaction ID for the Vipps payment.
+            virtual-payment:
+              type: string
+              description: Set to "true" if the payment is not a real transaction but an exchange between orders.
+        reservedpaymentid:
+          type: string
+          nullable: true
+          description: Reference to the reserved payment for this payment (if applicable).
+      required:
+        - name
+        - moneyamount
+    CheckoutMethod:
+      type: integer
+      enum:
+        - 0
+        - 100
+        - 101
+        - 200
+        - 300
+        - 301
+        - 305
+        - 306
+        - 400
+        - 401
+        - 500
+        - 600
+        - 601
+        - 700
+      x-ms-enum:
+        name: CheckoutMethod
+        modelAsString: false
+        values:
+          - value: 0
+            name: Default
+          - value: 100
+            name: PaynovaCard
+          - value: 101
+            name: PaynovaBank
+          - value: 200
+            name: Paypal
+          - value: 300
+            name: KlarnaFaktura
+          - value: 301
+            name: KlarnaKonto
+          - value: 305
+            name: KlarnaCheckout
+          - value: 306
+            name: KlarnaCheckoutV3
+          - value: 400
+            name: HandelsbankenFaktura
+          - value: 401
+            name: HandelsbankenKonto
+          - value: 500
+            name: Intrum
+          - value: 600
+            name: PointCard
+          - value: 601
+            name: PointBank
+          - value: 700
+            name: CollectAtStore
+    OrderDeliveryState:
+      type: string
+      enum:
+        - new
+        - ready-to-ship
+        - in-transit
+        - arrived
+        - ready-for-pickup
+        - delivered
+        - cancelled
+      x-ms-enum:
+        name: OrderDeliveryState
+        modelAsString: false
+        values:
+          - value: new
+            name: New
+          - value: ready-to-ship
+            name: ReadyToShip
+          - value: in-transit
+            name: InTransit
+          - value: arrived
+            name: Arrived
+          - value: ready-for-pickup
+            name: ReadyForPickup
+          - value: delivered
+            name: Delivered
+          - value: cancelled
+            name: Cancelled
+    OrderItemType:
+      type: integer
+      enum:
+        - 10
+        - 20
+      x-ms-enum:
+        name: OrderItemType
+        modelAsString: false
+        values:
+          - value: 10
+            name: Product
+          - value: 20
+            name: Discount
+    OrderLogType:
+      type: integer
+      enum:
+        - 0
+        - 10
+        - 11
+        - 20
+        - 21
+        - 22
+        - 23
+        - 30
+        - 31
+        - 32
+        - 33
+        - 34
+        - 35
+        - 40
+        - 50
+        - 60
+        - 70
+        - 72
+        - 75
+        - 100
+        - 900
+        - 910
+        - 950
+        - 998
+        - 999
+        - 1000
+      x-ms-enum:
+        name: OrderLogType
+        modelAsString: false
+        values:
+          - value: 0
+            name: Created
+          - value: 10
+            name: ConfirmationSent
+          - value: 11
+            name: DeliveryConfirmationSent
+          - value: 20
+            name: OrderStateOpen
+          - value: 21
+            name: OrderStateClosed
+          - value: 22
+            name: OrderStateCancelled
+          - value: 23
+            name: OrderStateAbandoned
+          - value: 30
+            name: PaymentStateNone
+          - value: 31
+            name: PaymentStatePending
+          - value: 32
+            name: PaymentStateSuccessful
+          - value: 33
+            name: PaymentStateCancelled
+          - value: 34
+            name: PaymentStateFailed
+          - value: 35
+            name: PaymentStateReserved
+          - value: 40
+            name: DeliveryStateNone
+          - value: 50
+            name: PaymentReceived
+          - value: 60
+            name: DeliveryToTASystem
+          - value: 70
+            name: DeliveryAdded
+          - value: 72
+            name: DeliveryUpdated
+          - value: 75
+            name: DeliveryCancelled
+          - value: 100
+            name: IpForOrder
+          - value: 900
+            name: ReadyForPickup
+          - value: 910
+            name: PickupRejected
+          - value: 950
+            name: EmailReceipt
+          - value: 998
+            name: LogDataCleared
+          - value: 999
+            name: GenericEvent
+          - value: 1000
+            name: AppEvent
+    OrderState:
+      type: integer
+      enum:
+        - -1
+        - 0
+        - 10
+        - 20
+      x-ms-enum:
+        name: OrderState
+        modelAsString: false
+        values:
+          - value: -1
+            name: Abandoned
+          - value: 0
+            name: Open
+          - value: 10
+            name: Closed
+          - value: 20
+            name: Cancelled
+    OrderType:
+      type: integer
+      enum:
+        - 10
+        - 100
+        - 110
+      x-ms-enum:
+        name: OrderType
+        modelAsString: false
+        values:
+          - value: 10
+            name: Order
+          - value: 100
+            name: Booking
+          - value: 110
+            name: POSParked
+    PaymentState:
+      type: integer
+      enum:
+        - 0
+        - 10
+        - 15
+        - 20
+        - 30
+        - 40
+      x-ms-enum:
+        name: PaymentState
+        modelAsString: false
+        values:
+          - value: 0
+            name: None
+          - value: 10
+            name: Pending
+          - value: 15
+            name: Reserved
+          - value: 20
+            name: Successful
+          - value: 30
+            name: Cancelled
+          - value: 40
+            name: Failed
+    ZReportVatGroup:
+      type: object
+      description: Contains the VAT details for a Z-report.
+      properties:
+        vatvalue:
+          type: number
+          description: The vat value for the vat group.
+        moneytotal:
+          $ref: "#/components/schemas/Money"
+        moneytotalnet:
+          $ref: "#/components/schemas/Money"
+        moneytotalvat:
+          $ref: "#/components/schemas/Money"
+    ZReportSubPayment:
+      type: object
+      description: Contains the details for a sub payment of ZReportPayment.
+      properties:
+        name:
+          type: string
+          description: The name of the sub payment.
+        moneysubtotal:
+          $ref: "#/components/schemas/Money"
+        moneycaptured:
+          $ref: "#/components/schemas/Money"
+          nullable: true
+          description: The amount captured for the payment. The difference between total and captured is the reserved amount.
+        moneyinadvance:
+          $ref: "#/components/schemas/Money"
+          nullable: true
+          description: The amount captured for the payment for items that were not delivered at the time of purchase (payment in advance).
+        moneyreserved:
+          $ref: "#/components/schemas/Money"
+          nullable: true
+    ZReportSalesTax:
+      type: object
+      description: Contains the sales tax details for a Z-report.
+      properties:
+        name:
+          type: string
+          description: The name of the sales tax.
+        code:
+          type: string
+          description: An identifier that can be used to specify the sales tax.
+        externalid:
+          type: string
+          description: A custom value to make it easier to export to external systems.
+        groupregion:
+          type: string
+          description: The region of the salestaxgroup this salestax item belongs to.
+        moneytotal:
+          $ref: "#/components/schemas/Money"
+          description: The total sales the collected tax is calculated on. (i.e., the sales with no tax)
+        moneytax:
+          $ref: "#/components/schemas/Money"
+          description: The total net money value for this sales tax.
+        decimaltaxvalue:
+          type: string
+          description: The tax value in percent.
+    ZReportProductGroup:
+      type: object
+      description: Contains the product group details for a Z-report.
+      properties:
+        name:
+          type: string
+          description: The name of the product group.
+        vatvalue:
+          type: number
+          description: The vat value for the product group.
+        numtotal:
+          type: integer
+          description: The total number of items for the product group.
+        moneytotal:
+          $ref: "#/components/schemas/Money"
+          description: The total gross money value for the product group.
+        moneytotalnet:
+          $ref: "#/components/schemas/Money"
+          description: The total net money value for the product group.
+        moneytotalvat:
+          $ref: "#/components/schemas/Money"
+          description: The total vat money value for the product group.
+    ZReportPayment:
+      type: object
+      description: Contains the payment details for a Z-report.
+      properties:
+        name:
+          type: string
+          description: The name of the payment.
+        moneytotal:
+          $ref: "#/components/schemas/Money"
+          description: The total money value of the payment.
+        moneycaptured:
+          $ref: "#/components/schemas/Money"
+          nullable: true
+          description: The amount captured for the payment. The difference between total and captured is the reserved amount.
+        moneyinadvance:
+          $ref: "#/components/schemas/Money"
+          nullable: true
+          description: The amount captured for the payment for items that were not delivered at the time of purchase (payment in advance).
+        moneyreserved:
+          $ref: "#/components/schemas/Money"
+          nullable: true
+          description: The reserved amount.
+        subpayments:
+          type: array
+          description: A specification of different payments within the payment type (if applicable). See ZReportSubPayment for fields.
+          items:
+            $ref: "#/components/schemas/ZReportSubPayment"
+    ZReportDiscount:
+      type: object
+      description: Contains the discount details for a Z-report.
+      properties:
+        vouchercode:
+          type: string
+          description: The vouchercode of the discount group.
+        moneytotal:
+          $ref: "#/components/schemas/Money"
+          description: The total gross money value for the discount group.
+        moneytotalnet:
+          $ref: "#/components/schemas/Money"
+          description: The total net money value for the discount group.
+        moneytotalvat:
+          $ref: "#/components/schemas/Money"
+          description: The total vat money value for the discount group.
+    ZReportCurrencyConversion:
+      type: object
+      description: Contains details about a foreign currency with conversion to the default (base) currency.
+      properties:
+        currency_code:
+          type: string
+          pattern: ^[A-Z]{3}$
+          example: "EUR"
+          description: The currency code of the foreign currency (3-letter ISO 4217).
+        money_expected:
+          $ref: "#/components/schemas/Money"
+          description: The calculated amount for cash in the register in the foreign currency before it was counted.
+        money_counted:
+          $ref: "#/components/schemas/Money"
+          description: The counted amount for cash in the register in the foreign currency when closing.
+        money_expected_base:
+          $ref: "#/components/schemas/Money"
+          description: The calculated amount for cash in the register before it was counted, converted to the default currency.
+        money_counted_base:
+          $ref: "#/components/schemas/Money"
+          description: The counted amount for cash in the register when closing, converted to the default currency.
+        bag_id:
+          type: string
+          description: The money bank bag ID for the counted cash in this currency.
+    StoreZReportData:
+      type: object
+      properties:
+        moneysalestotal:
+          $ref: "#/components/schemas/Money"
+        moneysalestotalnet:
+          $ref: "#/components/schemas/Money"
+        numsales:
+          type: integer
+        numsalesitems:
+          type: integer
+        vatgroupssales:
+          type: array
+          items:
+            $ref: "#/components/schemas/ZReportVatGroup"
+        productgroupssales:
+          type: array
+          items:
+            $ref: "#/components/schemas/ZReportProductGroup"
+        moneysalesnotdeliveredtotal:
+          $ref: "#/components/schemas/Money"
+        moneysalesnotdeliveredtotalnet:
+          $ref: "#/components/schemas/Money"
+        numsalesnotdelivered:
+          type: integer
+        numsalesnotdelivereditems:
+          type: integer
+        vatgroupssalesnotdelivered:
+          type: array
+          items:
+            $ref: "#/components/schemas/ZReportVatGroup"
+        productgroupssalesnotdelivered:
+          type: array
+          items:
+            $ref: "#/components/schemas/ZReportProductGroup"
+        moneyrefundtotal:
+          $ref: "#/components/schemas/Money"
+        moneyrefundtotalnet:
+          $ref: "#/components/schemas/Money"
+        numrefund:
+          type: integer
+        numrefunditems:
+          type: integer
+        vatgroupsrefund:
+          type: array
+          items:
+            $ref: "#/components/schemas/ZReportVatGroup"
+        productgroupsrefund:
+          type: array
+          items:
+            $ref: "#/components/schemas/ZReportProductGroup"
+        moneyroundoff:
+          $ref: "#/components/schemas/Money"
+        salestaxessales:
+          type: array
+          items:
+            $ref: "#/components/schemas/ZReportSalesTax"
+        salestaxesrefund:
+          type: array
+          items:
+            $ref: "#/components/schemas/ZReportSalesTax"
+        moneysalestaxinadvance:
+          $ref: "#/components/schemas/Money"
+        moneysummarysales:
+          $ref: "#/components/schemas/Money"
+        moneysummaryrefund:
+          $ref: "#/components/schemas/Money"
+        moneysummarysubtotal:
+          $ref: "#/components/schemas/Money"
+        moneysummarysalestax:
+          $ref: "#/components/schemas/Money"
+        moneysummaryroundoff:
+          $ref: "#/components/schemas/Money"
+        moneysummarytotal:
+          $ref: "#/components/schemas/Money"
+        paymentssales:
+          type: array
+          items:
+            $ref: "#/components/schemas/ZReportPayment"
+        paymentsrefund:
+          type: array
+          items:
+            $ref: "#/components/schemas/ZReportPayment"
+        discountssales:
+          type: array
+          items:
+            $ref: "#/components/schemas/ZReportDiscount"
+        discountssalesnotdelivered:
+          type: array
+          items:
+            $ref: "#/components/schemas/ZReportDiscount"
+        discountsrefund:
+          type: array
+          items:
+            $ref: "#/components/schemas/ZReportDiscount"
+        moneycash_in:
+          $ref: "#/components/schemas/Money"
+        moneycash_salesrefunds:
+          $ref: "#/components/schemas/Money"
+        moneycash_petty:
+          $ref: "#/components/schemas/Money"
+        moneycash_bank:
+          $ref: "#/components/schemas/Money"
+        moneycash_expected:
+          $ref: "#/components/schemas/Money"
+        moneycash_counted:
+          $ref: "#/components/schemas/Money"
+        moneycash_diff:
+          $ref: "#/components/schemas/Money"
+        moneycash_bankfinal:
+          $ref: "#/components/schemas/Money"
+        moneycash_out:
+          $ref: "#/components/schemas/Money"
+        moneydiscount:
+          $ref: "#/components/schemas/Money"
+        numsalestypeproduct:
+          type: integer
+        numsalestypeservice:
+          type: integer
+        numsalestypegiftcard:
+          type: integer
+        numreceipts:
+          type: integer
+        numopendrawer:
+          type: integer
+        numpractice:
+          type: integer
+        moneypractice:
+          $ref: "#/components/schemas/Money"
+        currencyconversions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ZReportCurrencyConversion"
+    StoreZReportConfig:
+      type: object
+      description: Configuration for running the Store Z-report aggregation service.
+      properties:
+        aggregation_active:
+          type: boolean
+          description: Boolean value indicating if aggregation of POS Z-reports to Store Z-report should run or not.
+          default: false
+        hour_of_day:
+          type: integer
+          description: The hour of the day (for the time_zone specified) that the service should run.
+          minimum: 0
+          maximum: 23
+        time_zone:
+          type: string
+          description: The timezone to be used for the aggregation to decide when the service should run.
+    StoreZReport:
+      type: object
+      description: Represents a Store Z-report with detailed information and aggregated data.
+      properties:
+        store_zreport_id:
+          type: string
+          description: UUID for the Store Z-report.
+          readOnly: true
+        currency_code:
+          type: string
+          description: Currency for the report (ISO 4217, alpha-3 uppercased).
+        store_id:
+          type: string
+          description: Store ID (external ID of the Store in Sitoo). All POS Z-reports without a proper store_id will be aggregated to a Store Z-report with the store_id value of NO_STORE.
+        store_name:
+          type: string
+          description: The name of the store.
+        day_created:
+          type: string
+          description: The day that this report was created.
+          pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          example: "2021-02-17T00:00:00.000Z"
+        date_created:
+          type: integer
+          description: Unix timestamp for when this report was created.
+        register_zreports:
+          type: array
+          description: A list of register Z-reports associated with this Store Z-report.
+          items:
+            type: object
+            properties:
+              registerid:
+                type: string
+                description: ID for the Cash Register.
+              zreportid:
+                type: integer
+                description: ID for the report (report number).
+        data:
+          $ref: "#/components/schemas/StoreZReportData"
+          description: The aggregated data for this Store Z-report.
+    PosZReport:
+      type: object
+      description: Z-report for Sitoo POS Cash Register.
+      properties:
+        zreportid:
+          type: integer
+          description: ID for this report (report number).
+        registerid:
+          type: string
+          description: Unique ID for this Cash Register.
+        manufacturerid:
+          type: string
+          description: Manufacturer ID for this Cash Register.
+        registerkey:
+          type: string
+          description: Key for this Cash Register used by the Tax Authorities and also printed on receipts.
+        registernumber:
+          type: integer
+          description: Number for this Cash Register (E.g 1, 2, 3...).
+        datecreated:
+          type: integer
+          description: Timestamp for when this report was created.
+        dateopened:
+          type: integer
+          description: Timestamp for when the register was opened or null if generated with legacy versions of Sitoo POS.
+          nullable: true
+        dateadded:
+          type: integer
+          description: Unix timestamp for when this report was added from the client to Sitoo Platform.
+        eshopid:
+          type: integer
+          description: Eshop ID (Eshop ID for the POS Z-report in Sitoo).
+        store_id:
+          type: string
+          description: Store ID (external ID of the Store in Sitoo).
+          nullable: true
+        store_name:
+          type: string
+          description: The name of the store.
+          nullable: true
+        company:
+          type: string
+          description: Company Name.
+        companyid:
+          type: string
+          description: Company ID.
+        address:
+          type: string
+          description: Address line 1 (street address).
+        address2:
+          type: string
+          description: Address line 2 (c/o or similar).
+        address3:
+          type: string
+          description: Address line 3 (zip, city and state).
+        currencycode:
+          type: string
+          description: Currency for the report. (ISO 4217, alpha-3 uppercased).
+        staff:
+          type: string
+          description: The name of the staff that produced the report.
+        staffuserid:
+          type: string
+          description: The user ID for the staff that produced the report.
+        comment:
+          type: string
+          description: The comment that the staff entered for the report.
+        moneysalestotal:
+          $ref: "#/components/schemas/Money"
+        moneysalestotalnet:
+          $ref: "#/components/schemas/Money"
+        numsales:
+          type: integer
+          description: The total number of sales.
+        numsalesitems:
+          type: integer
+          description: The total number of items in sales.
+        vatgroupssales:
+          type: array
+          description: Sales grouped by vat values.
+          items:
+            $ref: "#/components/schemas/ZReportVatGroup"
+        productgroupssales:
+          type: array
+          description: Sales grouped by product group.
+          items:
+            $ref: "#/components/schemas/ZReportProductGroup"
+        moneysalesnotdeliveredtotal:
+          $ref: "#/components/schemas/Money"
+        moneysalesnotdeliveredtotalnet:
+          $ref: "#/components/schemas/Money"
+        numsalesnotdelivered:
+          type: integer
+          description: The total number of sales where not all items were delivered.
+        numsalesnotdelivereditems:
+          type: integer
+          description: The total number of items in sales not delivered.
+        vatgroupssalesnotdelivered:
+          type: array
+          description: Sales not delivered grouped by vat values.
+          items:
+            $ref: "#/components/schemas/ZReportVatGroup"
+        productgroupssalesnotdelivered:
+          type: array
+          description: Sales not delivered grouped by product group.
+          items:
+            $ref: "#/components/schemas/ZReportProductGroup"
+        moneyrefundtotal:
+          $ref: "#/components/schemas/Money"
+        moneyrefundtotalnet:
+          $ref: "#/components/schemas/Money"
+        numrefund:
+          type: integer
+          description: The total number of refunds.
+        numrefunditems:
+          type: integer
+          description: The total number of items in refunds.
+        vatgroupsrefund:
+          type: array
+          description: Refunds grouped by vat values.
+          items:
+            $ref: "#/components/schemas/ZReportVatGroup"
+        productgroupsrefund:
+          type: array
+          description: Refunds grouped by product group.
+          items:
+            $ref: "#/components/schemas/ZReportProductGroup"
+        moneyroundoff:
+          $ref: "#/components/schemas/Money"
+        salestaxessales:
+          type: array
+          description: Collected sales taxes for sales grouped by name, code and taxvalue.
+          items:
+            $ref: "#/components/schemas/ZReportSalesTax"
+        salestaxesrefund:
+          type: array
+          description: Collected sales taxes for refunds grouped by name, code and taxvalue.
+          items:
+            $ref: "#/components/schemas/ZReportSalesTax"
+        moneysalestaxinadvance:
+          $ref: "#/components/schemas/Money"
+        moneysummarysales:
+          $ref: "#/components/schemas/Money"
+        moneysummaryrefund:
+          $ref: "#/components/schemas/Money"
+        moneysummarysubtotal:
+          $ref: "#/components/schemas/Money"
+        moneysummarysalestax:
+          $ref: "#/components/schemas/Money"
+        moneysummaryroundoff:
+          $ref: "#/components/schemas/Money"
+        moneysummarytotal:
+          $ref: "#/components/schemas/Money"
+        paymentssales:
+          type: array
+          description: All payments for sales.
+          items:
+            $ref: "#/components/schemas/ZReportPayment"
+        paymentsrefund:
+          type: array
+          description: All payments for refunds.
+          items:
+            $ref: "#/components/schemas/ZReportPayment"
+        discountssales:
+          type: array
+          description: Discounts grouped by vouchercode for sales.
+          items:
+            $ref: "#/components/schemas/ZReportDiscount"
+        discountsrefund:
+          type: array
+          description: Discounts grouped by vouchercode for refunds.
+          items:
+            $ref: "#/components/schemas/ZReportDiscount"
+        moneycash_in:
+          $ref: "#/components/schemas/Money"
+        moneycash_salesrefunds:
+          $ref: "#/components/schemas/Money"
+        moneycash_petty:
+          $ref: "#/components/schemas/Money"
+        moneycash_bank:
+          $ref: "#/components/schemas/Money"
+        moneycash_expected:
+          $ref: "#/components/schemas/Money"
+        moneycash_counted:
+          $ref: "#/components/schemas/Money"
+        moneycash_diff:
+          $ref: "#/components/schemas/Money"
+        moneycash_bankfinal:
+          $ref: "#/components/schemas/Money"
+        moneycash_out:
+          $ref: "#/components/schemas/Money"
+        cash_bankfinal_bag_id:
+          type: string
+          description: The money bank bag ID for the counted cash.
+        numsalestypeproduct:
+          type: integer
+          description: The total number of items of type "product".
+        numsalestypeservice:
+          type: integer
+          description: The total number of items of type "service".
+        numsalestypegiftcard:
+          type: integer
+          description: The total number of items of type "gift card".
+        numreceipts:
+          type: integer
+          description: The total number of receipts.
+        numopendrawer:
+          type: integer
+          description: The total number of times the cash register drawer was opened (excluding normal transactions).
+        numpractice:
+          type: integer
+          description: The total number of transactions made in practice mode.
+        moneypractice:
+          $ref: "#/components/schemas/Money"
+        currencyconversions:
+          type: array
+          description: Contains details about foreign currencies.
+          items:
+            $ref: "#/components/schemas/ZReportCurrencyConversion"
+        moneygrandtotalsales:
+          $ref: "#/components/schemas/Money"
+        moneygrandtotalrefund:
+          $ref: "#/components/schemas/Money"
+        moneygrandtotalnet:
+          $ref: "#/components/schemas/Money"
+        cashdiff_reasoncode:
+          type: string
+          description: An optional reason code added when there is a difference between the expected and the counted cash when closing the register.
+        cashdiff_reasoncomment:
+          type: string
+          description: An optional comment on the reason for a difference between the expected and the counted cash when closing the register.
+
+
+security:
+  - BasicAuth: []
