@@ -19,10 +19,11 @@ servers:
         description: Your account id
 
 paths:
-  /sites.json:
+  /sites:
     get:
       summary: Get Sites
       description: Returns an envelope with items of type site.
+      operationId: getSites
       tags:
         - Sites
       responses:
@@ -49,9 +50,10 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-  /sites/{siteid}.json:
+  /sites/{siteid}:
     get:
       summary: Get Site
+      operationId: getSiteById
       tags:
         - Sites
       parameters:
@@ -77,10 +79,11 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-  /sites/{siteid}/products.json:
+  /sites/{siteid}/products:
     post:
       summary: Batch Add Products
       description: This functions allows multiple items to be sent at once, like in the example below. For each item sent in an array a response is returned.
+      operationId: batchAddProducts
       tags:
         - Products
       parameters:
@@ -117,6 +120,7 @@ paths:
     get:
       summary: Get Products
       description: Get collection of product. Note! Only request fields that you need since some fields are calculated and can result in unnecessary lengthy operations.
+      operationId: getProducts
       tags:
         - Products
       parameters:
@@ -198,6 +202,7 @@ paths:
     put:
       summary: Batch Update Products
       description: Send an array of object. Either the productid or sku must be provided as identifier field for each item. If both are provided, the productid will have precedence over sku.
+      operationId: batchUpdateProducts
       tags:
         - Products
       parameters:
@@ -234,6 +239,7 @@ paths:
     delete:
       summary: Batch Delete Products
       description: See product for fields.Required fields:productid
+      operationId: batchDeleteProducts
       tags:
         - Products
       parameters:
@@ -267,9 +273,10 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-  /sites/{siteid}/products/{productid}.json:
+  /sites/{siteid}/products/{productid}:
     get:
       summary: Get Product
+      operationId: getProductById
       tags:
         - Products
       parameters:
@@ -302,6 +309,7 @@ paths:
           description: Internal Server Error.
     put:
       summary: Update Product
+      operationId: updateProduct
       tags:
         - Products
       parameters:
@@ -340,6 +348,7 @@ paths:
           description: Internal Server Error.
     delete:
       summary: Delete Product
+      operationId: deleteProduct
       tags:
         - Products
       parameters:
@@ -371,10 +380,11 @@ paths:
         500:
           description: Internal Server Error.
   
-  /sites/{siteid}/pricelists.json:
+  /sites/{siteid}/pricelists:
     post:
       summary: Add Price List
       description: Note! The total number of price lists allowed is limited to 100.
+      operationId: addPriceList
       tags:
         - Price Lists
       parameters:
@@ -408,6 +418,7 @@ paths:
           description: Internal Server Error.
     get:
       summary: Get Price Lists
+      operationId: getPriceLists
       tags:
         - Price Lists
       parameters:
@@ -460,9 +471,10 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-  /sites/{siteid}/pricelists/{pricelistid}.json:
+  /sites/{siteid}/pricelists/{pricelistid}:
     get:
       summary: Get Price List
+      operationId: getPriceListById
       tags:
         - Price Lists
       parameters:
@@ -496,6 +508,7 @@ paths:
           description: Internal Server Error.
     put:
       summary: Update Price List
+      operationId: updatePriceList
       tags:
         - Price Lists
       parameters:
@@ -535,6 +548,7 @@ paths:
           description: Internal Server Error.
     delete:
       summary: Delete Price List
+      operationId: deletePriceList
       tags:
         - Price Lists
       parameters:
@@ -566,9 +580,10 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-  /sites/{siteid}/pricelists/{pricelistid}/pricelistitems.json:
+  /sites/{siteid}/pricelists/{pricelistid}/pricelistitems:
     get:
       summary: Get Price Lists Items
+      operationId: getPriceListItems
       tags:
         - Price Lists
       parameters:
@@ -630,6 +645,7 @@ paths:
           description: Internal Server Error.
     put:
       summary: Batch Set Price List Items
+      operationId: batchSetPriceListItems
       tags:
         - Price Lists
       parameters:
@@ -671,6 +687,7 @@ paths:
           description: Internal Server Error.
     delete:
       summary: Batch Delete Price List Items
+      operationId: batchDeletePriceListItems
       tags:
         - Price Lists
       parameters:
@@ -715,9 +732,10 @@ paths:
         500:
           description: Internal Server Error.
 
-  /sites/{siteid}/productgroups.json:
+  /sites/{siteid}/productgroups:
     post:
       summary: Add Product Group
+      operationId: addProductGroup
       tags:
         - Product Groups (VAT)
       parameters:
@@ -752,6 +770,7 @@ paths:
           description: Internal Server Error.
     get:
       summary: Get Product Groups
+      operationId: getProductGroups
       tags:
         - Product Groups (VAT)
       parameters:
@@ -805,9 +824,10 @@ paths:
         500:
           description: Internal Server Error.
 
-  /sites/{siteid}/productgroups/{vatid}.json:
+  /sites/{siteid}/productgroups/{vatid}:
     get:
       summary: Get Product Group
+      operationId: getProductGroupByVatId
       tags:
         - Product Groups (VAT)
       parameters:
@@ -840,6 +860,7 @@ paths:
           description: Internal Server Error.
     put:
       summary: Update Product Group
+      operationId: updateProductGroup
       tags:
         - Product Groups (VAT)
       parameters:
@@ -878,6 +899,7 @@ paths:
           description: Internal Server Error.
     delete:
       summary: Delete Product Group
+      operationId: deleteProductGroup
       tags:
         - Product Groups (VAT)
       parameters:
@@ -908,9 +930,10 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-  /sites/{siteid}/users.json:
+  /sites/{siteid}/users:
     get:
       summary: Get Users
+      operationId: getUsers
       tags:
         - Users
       parameters:
@@ -994,6 +1017,7 @@ paths:
           description: Internal Server Error.
     post:
       summary: Batch Add Users
+      operationId: batchAddUsers
       tags:
         - Users
       parameters:
@@ -1029,6 +1053,7 @@ paths:
           description: Internal Server Error.
     put:
       summary: Batch Update Users
+      operationId: batchUpdateUsers
       tags:
         - Users
       parameters:
@@ -1062,9 +1087,10 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-  /sites/{siteid}/users/{userid}.json:
+  /sites/{siteid}/users/{userid}:
     get:
       summary: Get User
+      operationId: getUserById
       tags:
         - Users
       parameters:
@@ -1105,6 +1131,7 @@ paths:
           description: Internal Server Error.
     put:
       summary: Update User
+      operationId: updateUser
       tags:
         - Users
       parameters:
@@ -1145,6 +1172,7 @@ paths:
           description: Internal Server Error.
     delete:
       summary: Delete User
+      operationId: deleteUser
       tags:
         - Users
       parameters:
@@ -1175,10 +1203,10 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-
-  /orders.json:
+  /orders:
     get:
       summary: Get All Orders
+      operationId: getOrders
       tags:
         - Orders
       parameters:
@@ -1322,9 +1350,10 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-  /sites/{siteid}/orders.json:
+  /sites/{siteid}/orders:
     post:
       summary: Add Order
+      operationId: addOrder
       tags:
         - Orders
       parameters:
@@ -1357,9 +1386,10 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-  /sites/{siteid}/orders/{orderid}.json:
+  /sites/{siteid}/orders/{orderid}:
     get:
       summary: Get Order
+      operationId: getOrderById
       tags:
         - Orders
       parameters:
@@ -1392,6 +1422,7 @@ paths:
           description: Internal Server Error.
     put:
       summary: Update Order
+      operationId: updateOrder
       tags:
         - Orders
       parameters:
@@ -1428,9 +1459,10 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-  /orderdeliveries.json:
+  /orderdeliveries:
     get:
       summary: Get All Order Deliveries
+      operationId: getOrderDeliveries
       tags:
         - Orders
       parameters:
@@ -1475,9 +1507,10 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-  /sites/{siteid}/orders/{orderid}/orderdeliveries.json:
+  /sites/{siteid}/orders/{orderid}/orderdeliveries:
     post:
       summary: Add Order Delivery
+      operationId: addOrderDelivery
       tags:
         - Orders
       parameters:
@@ -1547,6 +1580,7 @@ paths:
           description: Internal Server Error.
     get:
       summary: Get Order Deliveries
+      operationId: getOrderDeliveriesByOrderId
       tags:
         - Orders
       parameters:
@@ -1584,9 +1618,10 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-  /sites/{siteid}/orders/{orderid}/orderdeliveries/{orderdeliveryid}.json:
+  /sites/{siteid}/orders/{orderid}/orderdeliveries/{orderdeliveryid}:
     put:
       summary: Update Order Delivery
+      operationId: updateOrderDelivery
       tags:
         - Orders
       parameters:
@@ -1648,9 +1683,10 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-  /sites/{siteid}/orders/{orderid}/orderlogitems.json:
+  /sites/{siteid}/orders/{orderid}/orderlogitems:
     post:
       summary: Add Order Log Item
+      operationId: addOrderLogItem
       tags:
         - Orders
       parameters:
@@ -1689,6 +1725,7 @@ paths:
           description: Internal Server Error.
     get:
       summary: Get Order Log Items
+      operationId: getOrderLogItems
       tags:
         - Orders
       parameters:
@@ -1726,10 +1763,11 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-  /pos-z-reports.json:
+  /pos-z-reports:
     get:
       summary: Get POS Z-reports
       description: Endpoint for retrieving POS Z-reports. The items returned are always sorted by dateadded in ascending order. Note! The maximum number of items returned is 500. If maximum number of items is returned, either try using a narrower filter for your query, or simply use the dateadded property for the last retrieved item to filter out the next items.
+      operationId: getPosZReports
       tags:
         - Z-reports
       parameters:
@@ -1786,10 +1824,11 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-  /pos-z-reports/{registerid}/{zreportid}.json:
+  /pos-z-reports/{registerid}/{zreportid}:
     get:
       summary: Get POS Z-report
       description: Endpoint for retrieving one POS Z-report.
+      operationId: getPosZReport
       tags:
         - Z-reports
       parameters:
@@ -1822,10 +1861,11 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-  /store-z-reports.json:
+  /store-z-reports:
     get:
       summary: Get Store Z-reports
       description: Endpoint for retrieving aggregated z-reports for stores. The items returned are always sorted by day_created in descending order. Also note that the store_id property for POS Z-reports missing a valid value will all be aggregated to a Store Z-report with the store_id value of NO_STORE. Note! If the day filter is not provided, then the number of returned items is limited to 100.
+      operationId: getStoreZReports
       tags:
         - Z-reports
       parameters:
@@ -1861,10 +1901,11 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-  /store-z-reports/{store_zreport_id}.json:
+  /store-z-reports/{store_zreport_id}:
     get:
       summary: Get Store Z-report
       description: Endpoint for retrieving an aggregated Store Z-report.
+      operationId: getStoreZReport
       tags:
         - Z-reports
       parameters:
@@ -1891,10 +1932,11 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-  /store-z-reports/config.json:
+  /store-z-reports/config:
     get:
       summary: Get Store Z-report Configuration
       description: Endpoint for retrieving configuration for Store Z-report service
+      operationId: getStoreZReportConfig
       tags:
         - Z-reports
       responses:
@@ -1917,6 +1959,7 @@ paths:
     put:
       summary: Set Store Z-report Configuration
       description: Endpoint for setting configuration for Store Z-report service
+      operationId: updateStoreZReportConfig
       tags:
         - Z-reports
       requestBody:
@@ -1942,7 +1985,6 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
-
 components:
   securitySchemes:
     BasicAuth:
