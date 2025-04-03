@@ -77,6 +77,17 @@
         ]
       },
       {
+        "name": "PayEx Payment API",
+        "description": "PayEx Payment API",
+        "baseUrl": "https://vasonline.payex.com/payment-api",
+        "properties": [
+          {
+            "type": "X-openapi",
+            "url": "payex/payex-payments-openapi.yaml"
+          }
+        ]
+      },
+      {
         "name": "Sitoo API",
         "description": "Sitoo API",
         "baseUrl": "https://api.mysitoo.com/v2/accounts/{accountId}/",
@@ -84,17 +95,6 @@
           {
             "type": "X-openapi",
             "url": "sitoo/sitoo-openapi.yaml"
-          }
-        ]
-      },
-      {
-        "name": "PayEx Payment API",
-        "description": "PayEx Payment API",
-        "baseUrl": "https://vasonline.payex.com/payment-api",
-        "properties": [
-          {
-            "type": "X-openapi",
-            "url": "https://raw.githubusercontent.com/Integrio/api-repository/refs/heads/main/payex/payex-payments-openapi.yaml"
           }
         ]
       }
