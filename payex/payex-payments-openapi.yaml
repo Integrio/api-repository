@@ -104,16 +104,11 @@ paths:
       summary: Create a new gift card
       operationId: getGiftCard
       parameters:
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       requestBody:
         content:
           application/json:
@@ -134,16 +129,11 @@ paths:
       summary: ping
       operationId: ping
       parameters:
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       requestBody:
         content:
           application/json:
@@ -174,16 +164,11 @@ paths:
           required: true
           schema:
             type: string
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       requestBody:
         content:
           application/json:
@@ -214,16 +199,11 @@ paths:
           required: true
           schema:
             type: string
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       requestBody:
         content:
           application/json:
@@ -254,16 +234,11 @@ paths:
           required: true
           schema:
             type: string
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       requestBody:
         content:
           application/json:
@@ -294,16 +269,11 @@ paths:
           required: true
           schema:
             type: string
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       requestBody:
         content:
           application/json:
@@ -324,16 +294,11 @@ paths:
       summary: purchase
       operationId: purchase
       parameters:
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       requestBody:
         content:
           application/json:
@@ -354,16 +319,11 @@ paths:
       summary: Create a pre-deposit transaction (only applicable for gift cards)
       operationId: preDeposit
       parameters:
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       requestBody:
         content:
           application/json:
@@ -384,16 +344,11 @@ paths:
       summary: deposit
       operationId: deposit
       parameters:
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       requestBody:
         content:
           application/json:
@@ -414,16 +369,11 @@ paths:
       summary: credit
       operationId: credit
       parameters:
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       requestBody:
         content:
           application/json:
@@ -444,16 +394,11 @@ paths:
       summary: capture
       operationId: capture_1
       parameters:
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       requestBody:
         content:
           application/json:
@@ -474,16 +419,11 @@ paths:
       summary: authorize
       operationId: authorize
       parameters:
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       requestBody:
         content:
           application/json:
@@ -504,16 +444,11 @@ paths:
       summary: balance
       operationId: balance
       parameters:
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       requestBody:
         content:
           application/json:
@@ -535,16 +470,11 @@ paths:
       description: Activate a single card.
       operationId: activate
       parameters:
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       requestBody:
         content:
           application/json:
@@ -565,16 +495,11 @@ paths:
       summary: PreDeposit - This is deprecated, please use `/api/payments/payment-account/payment/pre-deposit` instead
       operationId: preDeposit_1
       parameters:
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       requestBody:
         content:
           application/json:
@@ -596,16 +521,11 @@ paths:
       summary: GetGiftCard - This is deprecated, please use `/api/v2/payments/gift-card` instead
       operationId: getGiftCard_1
       parameters:
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       requestBody:
         content:
           application/json:
@@ -632,16 +552,11 @@ paths:
           required: true
           schema:
             type: string
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       responses:
         '200':
           description: OK
@@ -657,16 +572,11 @@ paths:
           required: true
           schema:
             type: string
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       responses:
         '200':
           description: OK
@@ -687,16 +597,11 @@ paths:
           required: true
           schema:
             type: string
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       responses:
         '200':
           description: OK
@@ -721,16 +626,11 @@ paths:
           required: true
           schema:
             type: string
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       responses:
         '200':
           description: OK
@@ -760,16 +660,11 @@ paths:
           required: true
           schema:
             type: string
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       responses:
         '200':
           description: OK
@@ -799,16 +694,11 @@ paths:
           required: true
           schema:
             type: string
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       responses:
         '200':
           description: OK
@@ -829,16 +719,11 @@ paths:
           schema:
             type: integer
             format: int64
-        - in: header
-          $ref: '#/components/parameters/Agreement-Merchant-Id'
-        - in: header
-          $ref: '#/components/parameters/Hmac'
-        - in: header
-          $ref: '#/components/parameters/Session-Id'
-        - in: header
-          $ref: '#/components/parameters/Transmission-Time'
-        - in: header
-          $ref: '#/components/parameters/Username'
+        - $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - $ref: '#/components/parameters/Hmac'
+        - $ref: '#/components/parameters/Session-Id'
+        - $ref: '#/components/parameters/Transmission-Time'
+        - $ref: '#/components/parameters/Username'
       responses:
         '200':
           description: OK
