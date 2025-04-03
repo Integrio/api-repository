@@ -86,6 +86,17 @@
             "url": "sitoo/sitoo-openapi.yaml"
           }
         ]
+      },
+      {
+        "name": "PayEx Payment API",
+        "description": "PayEx Payment API",
+        "baseUrl": "https://vasonline.payex.com/payment-api",
+        "properties": [
+          {
+            "type": "X-openapi",
+            "url": "payex/payex-payments-openapi.yaml"
+          }
+        ]
       }
     ]
   }
