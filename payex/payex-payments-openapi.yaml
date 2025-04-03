@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: PayEx Payment API
+  title: Vas Public Payment Api
   description: |+
 
     To scope down please select a **definition** to the right in navigation bar.

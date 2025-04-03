@@ -79,7 +79,7 @@
       {
         "name": "PayEx Payment API",
         "description": "PayEx Payment API",
-        "baseUrl": "https://vasonline.payex.com/payment-api",
+        "baseUrl": "https://stage-evc.payex.com/payment-api",
         "properties": [
           {
             "type": "X-openapi",
