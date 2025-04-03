@@ -1,0 +1,1950 @@
+openapi: 3.0.4
+info:
+  title: Vas Public Payment Api
+  description: |+
+
+    To scope down please select a **definition** to the right in navigation bar.
+
+    ## Authentication
+    **This API requires an OAuth2 token in all requests.**
+    To test in swagger, you must obtain a *token*, then click the **_"Authorize"_** button and enter the token prefixed with 'Bearer ' (ex: `Bearer this-should-be-a-valid-jwt-token`).
+    ---
+
+    ## Problems
+    This API uses the [Problem Details for HTTP APIs](https://tools.ietf.org/html/rfc7807) specification for error handling.
+    Example:
+    ```json
+    {
+        "type": "vas.request.unauthorized.error",
+        "title": "Unauthorized",
+        "status": 401,
+        "detail": "Full authentication is required to access this resource",
+        "instance": "6474c5b4-f3d2-4d12-b413-0de8701a4724"
+    }
+    ```
+    <details>
+        <summary>**Known problem types:**</summary>
+    |Type|Title|HttpStatus|
+    |---|---|---|
+    |vas.generic.server.error|Internal server error|500|
+    |vas.request.access-validation.error|Access validation error|403|
+    |vas.request.unauthorized.error|Unauthorized|401|
+    |vas.request.validation.error|Input error|400|
+    |vas.request.conflict.error|Resource conflict|409|
+    |vas.generic.communication.error|Communication error|500|
+    |vas.service.unavailable.error|Service unavailable|503|
+    |vas.service.timeout.error|Timeout error|503|
+    |vas.request.validation.error|Missing or illegal input|400|
+    |vas.entity.not-found.error|Entity not found|404|
+    |vas.generic.too-many-requests|Too Many Requests|429|
+    |vas.request.agreement-validation.error|No valid agreement found|403|
+    |vas.payment-api.api.not-implemented|Requested api method is not yet implemented for this system|501|
+    |vas.payment-api.product-reversal.missing-product|Please specify a product the reversal is intended for|400|
+    |vas.payment-api.transactional-problem|There was a problem with the transaction, see action code for more information|400|
+    |vas.payment-api.not-found|Entity not found, see action code for more information|404|
+
+    </details>
+    ---
+
+    If the problem type is `vas.credit-account-co-branded-api.transaction`, additional `actionCode` and `actionCodeDesc` will be returned.
+    Example:
+    ```json
+    {
+        "type": "vas.credit-account-co-branded-api.transaction",
+        "title": "There was a problem with the transaction, se action code for more information",
+        "status": 400,
+        "detail": "Transaction failed",
+        "instance": "6474c5b4-f3d2-4d12-b413-0de8701a4724",
+        "actionCode": "16",
+        "actionCodeDesc": "Card is expired"
+    }
+    ```
+
+    <details>
+        <summary>**Possible action codes:**</summary>
+    |Code|Description|
+    |---|---|
+    |0|OK|
+    |1|Technical error|
+    |2|Fatal error|
+    |3|Input error|
+    |4|Error relating to rules|
+    |5|Insufficient funds|
+    |6|Invalid card|
+    |7|Validating previous transaction failed|
+    |8|Error relating to manual override|
+    |9|Reversal not allowed|
+    |11|PAN is blacklisted|
+    |14|Products not allowed|
+    |15|Number of allowed transactions exceeded|
+    |16|Card is expired|
+    |17|Merchant AntiFraud|
+    |18|Blocked Pin|
+    |19|Wrong Pin|
+    |20|Canceled|
+
+    </details>
+
+  contact:
+    name: VAS support
+    email: support.vas@payex.com
+  version: 2.30.2
+servers:
+  - url: https://vasonline.payex.com/payment-api
+    description: Production
+  - url: https://stage-evc.payex.com/payment-api
+    description: Test
+security:
+  - JWT: []
+paths:
+  /api/v2/payments/gift-card:
+    post:
+      tags:
+        - GiftCard Resource
+      summary: Create a new gift card
+      operationId: getGiftCard
+      parameters:
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGiftCardRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/CreateGiftCardResponse'
+  /api/payments/ping:
+    post:
+      tags:
+        - Ping Resource
+      summary: ping
+      operationId: ping
+      parameters:
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PingRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/PingResponse'
+  /api/payments/payment-account/{paymentAccountId}/payment/{paymentId}/reversal:
+    post:
+      tags:
+        - Transaction Resource
+      summary: reversal
+      operationId: reversal
+      parameters:
+        - name: paymentAccountId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimpleTransactionRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+  /api/payments/payment-account/{paymentAccountId}/payment/{paymentId}/product-reversal:
+    post:
+      tags:
+        - Transaction Resource
+      summary: product-reversal
+      operationId: productReversal
+      parameters:
+        - name: paymentAccountId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductReversalRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+  /api/payments/payment-account/{paymentAccountId}/payment/{paymentId}/capture:
+    post:
+      tags:
+        - Transaction Resource
+      summary: capture
+      operationId: capture
+      parameters:
+        - name: paymentAccountId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+  /api/payments/payment-account/{paymentAccountId}/payment/{paymentId}/cancel:
+    post:
+      tags:
+        - Operation Resource
+      summary: cancel
+      operationId: cancel
+      parameters:
+        - name: paymentAccountId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OperationRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /api/payments/payment-account/payment/purchase:
+    post:
+      tags:
+        - Payment Resource
+      summary: purchase
+      operationId: purchase
+      parameters:
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+  /api/payments/payment-account/payment/pre-deposit:
+    post:
+      tags:
+        - Payment Resource
+      summary: Create a pre-deposit transaction (only applicable for gift cards)
+      operationId: preDeposit
+      parameters:
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreDepositRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/PreDepositResponse'
+  /api/payments/payment-account/payment/deposit:
+    post:
+      tags:
+        - Payment Resource
+      summary: deposit
+      operationId: deposit
+      parameters:
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimplePaymentRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+  /api/payments/payment-account/payment/credit:
+    post:
+      tags:
+        - Payment Resource
+      summary: credit
+      operationId: credit
+      parameters:
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimplePaymentRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+  /api/payments/payment-account/payment/capture:
+    post:
+      tags:
+        - Payment Resource
+      summary: capture
+      operationId: capture_1
+      parameters:
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimplePaymentRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+  /api/payments/payment-account/payment/authorize:
+    post:
+      tags:
+        - Payment Resource
+      summary: authorize
+      operationId: authorize
+      parameters:
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimplePaymentRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+  /api/payments/payment-account/balance:
+    post:
+      tags:
+        - PaymentAccount Resource
+      summary: balance
+      operationId: balance
+      parameters:
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BalanceRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/PaymentAccountResponse'
+  /api/payments/payment-account/activate:
+    post:
+      tags:
+        - Payment Resource
+      summary: activate
+      description: Activate a single card.
+      operationId: activate
+      parameters:
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivationRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+  /api/payments/gift-card/pre-deposit:
+    post:
+      tags:
+        - GiftCard Resource
+      summary: PreDeposit - This is deprecated, please use `/api/payments/payment-account/payment/pre-deposit` instead
+      operationId: preDeposit_1
+      parameters:
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GiftCardDepositRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/PreDepositResponseV1'
+      deprecated: true
+  /api/payments/gift-card/get-new-gift-card:
+    post:
+      tags:
+        - GiftCard Resource
+      summary: GetGiftCard - This is deprecated, please use `/api/v2/payments/gift-card` instead
+      operationId: getGiftCard_1
+      parameters:
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GiftCardRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/GiftCardResponse'
+      deprecated: true
+  /api/payments/gift-card/batch/{batchId}/cancel:
+    patch:
+      tags:
+        - GiftCard Resource
+      summary: cancelGiftCardBatch
+      operationId: cancelGiftCardBatch
+      parameters:
+        - name: batchId
+          in: path
+          required: true
+          schema:
+            type: string
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      responses:
+        '200':
+          description: OK
+  /api/payments/gift-card/batch/{batchId}/activate:
+    patch:
+      tags:
+        - GiftCard Resource
+      summary: Activate a batch of gift cards
+      operationId: activateGiftCardBatch
+      parameters:
+        - name: batchId
+          in: path
+          required: true
+          schema:
+            type: string
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      responses:
+        '200':
+          description: OK
+  /api/payments/payment-account/{paymentAccountId}/payment:
+    get:
+      tags:
+        - Payment Resource
+      summary: getPaymentByTransactionReference
+      operationId: getPaymentByTransactionReference
+      parameters:
+        - name: paymentAccountId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: paymentTransactionRef
+          in: query
+          required: true
+          schema:
+            type: string
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+  /api/payments/payment-account/{paymentAccountId}/payment/{paymentId}:
+    get:
+      tags:
+        - Payment Resource
+      summary: getPayment
+      operationId: getPayment
+      parameters:
+        - name: paymentAccountId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+  /api/payments/payment-account/{paymentAccountId}/payment/{paymentId}/transactions/{transactionId}:
+    get:
+      tags:
+        - Transaction Resource
+      summary: getTransaction
+      operationId: getTransaction
+      parameters:
+        - name: paymentAccountId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+  /api/payments/payment-account/{paymentAccountId}/payment/{paymentId}/operations/{operationId}:
+    get:
+      tags:
+        - Operation Resource
+      summary: getOperation
+      operationId: getOperation
+      parameters:
+        - name: paymentAccountId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: operationId
+          in: path
+          required: true
+          schema:
+            type: string
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+  /api/payments/gift-card/transactions/card/{cardId}:
+    get:
+      tags:
+        - GiftCard Resource
+      summary: getCardTransactions
+      operationId: getCardTransactions
+      parameters:
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - in: header
+          $ref: '#/components/parameters/Agreement-Merchant-Id'
+        - in: header
+          $ref: '#/components/parameters/Hmac'
+        - in: header
+          $ref: '#/components/parameters/Session-Id'
+        - in: header
+          $ref: '#/components/parameters/Transmission-Time'
+        - in: header
+          $ref: '#/components/parameters/Username'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/GiftCardActivityDetails'
+components:
+  schemas:
+    CreateGiftCardRequest:
+      required:
+        - amount
+      type: object
+      properties:
+        amount:
+          type: integer
+          description: Total amount of Payment (in cents), ie. 100Kr -> 10000. If amount is 0 no deposit is made.
+          format: int64
+          example: 10000
+        email:
+          type: string
+          description: customers email
+          example: example@exampleprovider.com
+        msisdn:
+          type: string
+          description: customers mobile number
+          example: '99999999'
+        paymentTransactionRef:
+          type: string
+          description: Optional Unique ID for each payment
+          example: UUID
+        status:
+          type: string
+          description: Optional status for gift card set after creation
+          example: INACTIVE
+          enum:
+            - OK
+            - INACTIVE
+    AccountIdentifier:
+      type: object
+      properties:
+        accountKey:
+          type: string
+          description: Primary Account Number (PAN) for card/account. This is mandatory (if not paymentToken is provided)
+          example: '7013360000000001234'
+        cvc:
+          type: string
+          description: Card Verification Code. This is mandatory if the payment instrument is 'Gift Card', 'Credit Card' or 'Debit Card' and account key is specified
+          example: '123'
+        expiryDate:
+          type: string
+          description: Expiry date on card. Only applicable for payment instrument 'Credit Card' where expiry date is printed on card and accountKey is specified in request. Format MM/YY
+          example: 12/20
+        paymentToken:
+          type: string
+          description: Payment token identifying card. Can be used instead of accountKey + cvc for payment instrument 'Credit Card' and 'Debit Card'
+          example: DC-0d3fb236-2ac4-4887-b64d-ad0941c6a1d8
+      description: |+
+        This is a generic Account Identifier, and it is used across all financial resources.
+
+        Possible types and what fields which needs to be populated:
+         - **Coupon** - accountKey
+         - **Gift Card** - paymentToken or accountKey + cvc
+         - **Credit Card** - paymentToken or accountKey + cvc + expiryDate
+         - **Debit Card** - paymentToken or accountKey + cvc + expiryDate
+
+    AccountSummary:
+      type: object
+      properties:
+        accountId:
+          type: string
+          description: PayEx internal id for card/account
+          example: '123456789'
+        balance:
+          type: integer
+          description: Available amount on card/account (in cents).
+          format: int64
+          example: 10000
+        expiryDate:
+          type: string
+          description: Expiry date stored on card. Format YYYY-MM-dd
+          example: '2020-01-15'
+        paymentInstrument:
+          type: string
+          description: Type of payment card/voucher
+          example: giftcard
+          enum:
+            - giftcard
+            - valuecode
+            - coupon
+            - prepaidcard
+            - creditcard
+            - debitcard
+        currency:
+          type: string
+          description: Currency associated with account
+          example: NOK
+          enum:
+            - NOK
+            - SEK
+            - DKK
+            - EUR
+            - USD
+        maskedPan:
+          type: string
+          description: PAN which is masked
+          example: 639457*********2620
+    CreateGiftCardResponse:
+      type: object
+      properties:
+        paymentId:
+          type: string
+          description: Unique transaction id from PayEx. Only returned if a deposit is made (amount > 0 in request)
+          example: '4526987'
+        accountSummary:
+          $ref: '#/components/schemas/AccountSummary'
+        accountIdentifier:
+          $ref: '#/components/schemas/AccountIdentifier'
+        _links:
+          $ref: '#/components/schemas/Links'
+    Links:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Link'
+    PingRequest:
+      type: object
+      properties:
+        description:
+          type: string
+          description: Payment description
+    PingResponse:
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/Links'
+        state:
+          type: string
+          enum:
+            - OK, FAILED, REVERSED, DUPLICATE
+        operation:
+          type: string
+        amount:
+          type: integer
+          format: int64
+        currency:
+          type: string
+        description:
+          type: string
+        paymentOrderRef:
+          type: string
+        paymentTransactionRef:
+          type: string
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        transmissionTime:
+          type: string
+          format: date-time
+    SimpleTransactionRequest:
+      required:
+        - paymentOrderRef
+        - paymentTransactionRef
+      type: object
+      properties:
+        amount:
+          type: integer
+          description: Total amount of Payment (in cents), ie. 100Kr -> 10000. If this is a Capture request and no Amount is specified, the full authorization amount will be captured.
+          format: int64
+          example: 10000
+        description:
+          type: string
+          description: Payment description
+          example: Payment description
+        paymentOrderRef:
+          type: string
+          description: Unique ID to bind 2-phase transactions
+          example: UUID
+        paymentTransactionRef:
+          type: string
+          description: Unique ID for each payment
+          example: UUID
+        additionalData:
+          type: string
+          description: Optional additional data stored on transaction
+        cancelRemainingAuth:
+          type: boolean
+          description: Optional value only used with Capture requests. If 'true' remaining amount on Auth will be cancelled/released
+    Issuer:
+      type: object
+      properties:
+        issuerId:
+          type: string
+          description: Issuer ID (provided by PayEx)
+        issuerName:
+          type: string
+          description: Issuer name (provided by PayEx)
+        acquirerId:
+          type: string
+          description: Acquiring institution ID (provided by PayEx)
+        acquirerName:
+          type: string
+          description: Acquiring institution name (provided by PayEx)
+        settlementProvided:
+          type: boolean
+          description: Determines if settlement is provided by PayEx
+    TransactionResponse:
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/Links'
+        state:
+          type: string
+          enum:
+            - OK, FAILED, REVERSED, DUPLICATE
+        operation:
+          type: string
+        amount:
+          type: integer
+          format: int64
+        currency:
+          type: string
+        description:
+          type: string
+        paymentOrderRef:
+          type: string
+        paymentTransactionRef:
+          type: string
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        transmissionTime:
+          type: string
+          format: date-time
+        transactionId:
+          type: string
+        remainingCaptureAmount:
+          type: integer
+          format: int64
+        remainingReversalAmount:
+          type: integer
+          format: int64
+        issuer:
+          $ref: '#/components/schemas/Issuer'
+    ProductReversalRequest:
+      required:
+        - paymentOrderRef
+        - paymentTransactionRef
+      type: object
+      properties:
+        amount:
+          type: integer
+          description: Total amount of Payment (in cents), ie. 100Kr -> 10000. If this is a Capture request and no Amount is specified, the full authorization amount will be captured.
+          format: int64
+          example: 10000
+        description:
+          type: string
+          description: Payment description
+          example: Payment description
+        paymentOrderRef:
+          type: string
+          description: Unique ID to bind 2-phase transactions
+          example: UUID
+        paymentTransactionRef:
+          type: string
+          description: Unique ID for each payment
+          example: UUID
+        additionalData:
+          type: string
+          description: Optional additional data stored on transaction
+        cancelRemainingAuth:
+          type: boolean
+          description: Optional value only used with Capture requests. If 'true' remaining amount on Auth will be cancelled/released
+        productIdentifier:
+          type: string
+          description: Product identifier identifying which product to reverse on the original transaction
+          example: '100'
+    Product:
+      required:
+        - amount
+        - productId
+        - quantity
+        - unitOfMeasure
+      type: object
+      properties:
+        productId:
+          type: string
+          description: Used to identify a product
+          example: '001'
+        description:
+          type: string
+          description: Optional product description
+          example: 1x banana
+        quantity:
+          type: number
+          description: Number of product units sold (both integer and decimal numbers supported)
+          example: 13.37
+        amount:
+          type: integer
+          description: Monetary value of purchased product (in cents)
+          format: int64
+          example: 1337
+        unitOfMeasure:
+          type: string
+          description: Type of measurement, L=Litre, U=Unit, G=Grams This may refer to the number of packs, number of bottles etc., O=present, this denotes that there is no measurement.
+          example: L
+          enum:
+            - L,U,G,O
+        vatAmount:
+          type: integer
+          description: Monetary value of vat-amount for purchased product (in cents)
+          format: int64
+          example: 337
+        vatRate:
+          maximum: 25
+          minimum: 0
+          type: number
+          description: Vat-rate for purchased product (both integer and decimal numbers supported)
+          example: 25
+    TransactionRequest:
+      required:
+        - paymentOrderRef
+        - paymentTransactionRef
+      type: object
+      properties:
+        amount:
+          type: integer
+          description: Total amount of Payment (in cents), ie. 100Kr -> 10000. If this is a Capture request and no Amount is specified, the full authorization amount will be captured.
+          format: int64
+          example: 10000
+        description:
+          type: string
+          description: Payment description
+          example: Payment description
+        paymentOrderRef:
+          type: string
+          description: Unique ID to bind 2-phase transactions
+          example: UUID
+        paymentTransactionRef:
+          type: string
+          description: Unique ID for each payment
+          example: UUID
+        additionalData:
+          type: string
+          description: Optional additional data stored on transaction
+        cancelRemainingAuth:
+          type: boolean
+          description: Optional value only used with Capture requests. If 'true' remaining amount on Auth will be cancelled/released
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+    Merchant:
+      type: object
+      properties:
+        merchantName:
+          type: string
+          description: Name of merchant where payment was performed
+          example: Test Merchant 101
+        terminalId:
+          type: string
+          description: Used to identify terminal
+          example: '12345'
+    OperationRequest:
+      required:
+        - paymentOrderRef
+        - paymentTransactionRef
+      type: object
+      properties:
+        description:
+          type: string
+          description: Payment description
+        paymentOrderRef:
+          type: string
+          description: Unique ID to bind 2-phase transactions
+          example: UUID
+        paymentTransactionRef:
+          type: string
+          description: Unique ID for each payment
+          example: UUID
+        merchant:
+          $ref: '#/components/schemas/Merchant'
+    OperationResponse:
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/Links'
+        state:
+          type: string
+          enum:
+            - OK, FAILED, REVERSED, DUPLICATE
+        operation:
+          type: string
+        amount:
+          type: integer
+          format: int64
+        currency:
+          type: string
+        description:
+          type: string
+        paymentOrderRef:
+          type: string
+        paymentTransactionRef:
+          type: string
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        transmissionTime:
+          type: string
+          format: date-time
+        operationId:
+          type: string
+    Billing:
+      required:
+        - addressee
+        - city
+        - countryCode
+        - distributionMethod
+        - legalEntity
+        - postalCode
+        - streetAddress
+      type: object
+      properties:
+        addressee:
+          type: string
+          description: The name of the person or company to receive the invoice
+          example: Bart Simpson
+        merchantName:
+          type: string
+          description: Used to specify the name of the merchant where the purchase was made
+          example: Gas'N'Gulp
+        companyName:
+          type: string
+          description: Used to specify the name of the company who is optionally paying for the invoice on behalf of someone else
+          example: Springfield Power Plant
+        streetAddress:
+          type: string
+          description: The street address of the person or company to receive the invoice. Should not include addressee, county, postal code or country code
+          example: 742 Evergreen Terrace
+        coAddress:
+          type: string
+          description: Should be populated if the invoice recipient receives their mail elsewhere than their main postal address
+          example: 16 West Oak Street
+        postalCode:
+          maxLength: 10
+          minLength: 4
+          type: string
+          description: The numeric postal code of the county that the addressee resides in
+          example: '80085'
+        city:
+          type: string
+          description: The name of the city/town that the addressee resides in
+          example: Springfield
+        countryCode:
+          maxLength: 2
+          minLength: 2
+          pattern: '[a-z,A-Z]{2}'
+          type: string
+          description: The two character long country code for the country that the addressee resides in according to ISO 3166-1 alpha-2
+          example: US
+        email:
+          pattern: ^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$
+          type: string
+          description: The email address of the addressee in case of EHF invoice distribution type
+          example: mr.burns@sfpowerplant.com
+        vatRegistrationNumber:
+          maxLength: 15
+          minLength: 5
+          type: string
+          description: The VAT registration number of a company if the addressee is a business and not a private entity
+          example: '372315303'
+        vatRegistrationCountry:
+          maxLength: 2
+          minLength: 2
+          pattern: '[a-z,A-Z]{2}'
+          type: string
+          description: The country code for the country that the VAT registration number is registered to complying with ISO 3166-1 alpha-2
+          example: US
+        legalEntity:
+          type: string
+          description: Legal entity is used to specify if the recipient of the invoice is a private or business customer.
+          example: PRIVATE
+          enum:
+            - CORPORATE
+            - PRIVATE
+        invoiceDueDate:
+          type: string
+          description: If specified this will be the due date on the created invoice for the specified transaction
+          format: date
+          example: '2021-01-01'
+        invoiceCreationDate:
+          type: string
+          description: 'If specified this will be the date printed on the invoice that it has been created. Note: The invoice may be created prior or after this date, but the data within the invoice will depend on this variable'
+          format: date
+          example: '2021-01-01'
+        distributionMethod:
+          type: string
+          description: Used to specify if we are going to send the invoice by email or print and post the invoice by regular mail. If email is specified, make sure to send in a valid email address. The same goes for EHF, if it is specified make sure to provide a valid VatRegistrationNumber
+          example: POSTAL
+          enum:
+            - EMAIL
+            - POSTAL
+            - EHF
+        msisdn:
+          type: string
+          description: Msisdn to customer
+          example: '004699999999'
+        socialSecurityNumber:
+          type: string
+          description: SSN of customer can be encrypted
+        socialSecurityCountry:
+          type: string
+          description: Country code for ssn
+          example: 'NO'
+        buyerReference:
+          maxLength: 50
+          type: string
+          description: A reference value provided by the customer in order to automate the process of matching invoices in their system
+          example: INV123456
+        invoiceCaseReference:
+          maxLength: 50
+          type: string
+          description: A reference value provided by the customer as a reference to an external case id to be printed on the invoice
+          example: Case12345
+      description: This is an object specifying information about who is to receive the possible invoice for a given financial request if the account owner should not receive it.
+    PaymentRequest:
+      required:
+        - accountIdentifier
+        - amount
+        - currency
+        - merchant
+        - paymentOrderRef
+        - paymentTransactionRef
+      type: object
+      properties:
+        currency:
+          type: string
+          description: Currency for Payment
+          example: NOK
+        amount:
+          type: integer
+          description: Total amount of Payment (in cents), ie. 100Kr -> 10000
+          format: int64
+          example: 10000
+        description:
+          type: string
+          description: Payment description
+        paymentOrderRef:
+          type: string
+          description: Unique ID to bind 2-phase transactions
+          example: UUID
+        paymentTransactionRef:
+          type: string
+          description: Unique ID for each payment
+          example: UUID
+        stan:
+          type: string
+          description: Systems trace audit number
+          example: '123456'
+        repeat:
+          type: boolean
+          description: Notifies this is a repeat message
+        additionalData:
+          type: string
+          description: Optional additional data stored on transaction
+        merchant:
+          $ref: '#/components/schemas/Merchant'
+        accountIdentifier:
+          $ref: '#/components/schemas/AccountIdentifier'
+        billing:
+          $ref: '#/components/schemas/Billing'
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+    PaymentResponse:
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/Links'
+        state:
+          type: string
+          enum:
+            - OK, FAILED, REVERSED, DUPLICATE
+        operation:
+          type: string
+        amount:
+          type: integer
+          format: int64
+        currency:
+          type: string
+        description:
+          type: string
+        paymentOrderRef:
+          type: string
+        paymentTransactionRef:
+          type: string
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        transmissionTime:
+          type: string
+          format: date-time
+        paymentId:
+          type: string
+        remainingCaptureAmount:
+          type: integer
+          format: int64
+        remainingReversalAmount:
+          type: integer
+          format: int64
+        remainingCancelAmount:
+          type: integer
+          format: int64
+        accountIdentifier:
+          $ref: '#/components/schemas/AccountIdentifier'
+        issuer:
+          $ref: '#/components/schemas/Issuer'
+        allowedProductIds:
+          type: array
+          items:
+            type: string
+        merchant:
+          $ref: '#/components/schemas/Merchant'
+    PreDepositRequest:
+      required:
+        - accountIdentifier
+        - amount
+        - currency
+        - merchant
+        - paymentOrderRef
+        - paymentTransactionRef
+      type: object
+      properties:
+        currency:
+          type: string
+          description: Currency for Payment
+          example: NOK
+        amount:
+          type: integer
+          description: Total amount of Payment (in cents), ie. 100Kr -> 10000
+          format: int64
+          example: 10000
+        description:
+          type: string
+          description: Payment description
+        paymentOrderRef:
+          type: string
+          description: Unique ID to bind 2-phase transactions
+          example: UUID
+        paymentTransactionRef:
+          type: string
+          description: Unique ID for each payment
+          example: UUID
+        stan:
+          type: string
+          description: Systems trace audit number
+          example: '123456'
+        repeat:
+          type: boolean
+          description: Notifies this is a repeat message
+        additionalData:
+          type: string
+          description: Optional additional data stored on transaction
+        batchId:
+          type: string
+          description: Id used to combine multiple PreDeposit's to a single batch
+          example: UUID
+        merchant:
+          $ref: '#/components/schemas/Merchant'
+        accountIdentifier:
+          $ref: '#/components/schemas/AccountIdentifier'
+    PreDepositResponse:
+      required:
+        - balance
+      type: object
+      properties:
+        balance:
+          type: integer
+          description: Available amount on card/account (in cents).
+          format: int64
+          example: 10000
+        batchId:
+          type: string
+          description: Id used to combine multiple PreDeposit's to a single batch
+          example: UUID
+        _links:
+          $ref: '#/components/schemas/Links'
+        state:
+          type: string
+          enum:
+            - OK, FAILED, REVERSED, DUPLICATE
+        operation:
+          type: string
+        amount:
+          type: integer
+          format: int64
+        currency:
+          type: string
+        description:
+          type: string
+        paymentOrderRef:
+          type: string
+        paymentTransactionRef:
+          type: string
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        transmissionTime:
+          type: string
+          format: date-time
+        paymentId:
+          type: string
+        remainingCaptureAmount:
+          type: integer
+          format: int64
+        remainingReversalAmount:
+          type: integer
+          format: int64
+        remainingCancelAmount:
+          type: integer
+          format: int64
+        accountIdentifier:
+          $ref: '#/components/schemas/AccountIdentifier'
+        issuer:
+          $ref: '#/components/schemas/Issuer'
+        allowedProductIds:
+          type: array
+          items:
+            type: string
+        merchant:
+          $ref: '#/components/schemas/Merchant'
+    SimplePaymentRequest:
+      required:
+        - accountIdentifier
+        - amount
+        - currency
+        - merchant
+        - paymentOrderRef
+        - paymentTransactionRef
+      type: object
+      properties:
+        currency:
+          type: string
+          description: Currency for Payment
+          example: NOK
+        amount:
+          type: integer
+          description: Total amount of Payment (in cents), ie. 100Kr -> 10000
+          format: int64
+          example: 10000
+        description:
+          type: string
+          description: Payment description
+        paymentOrderRef:
+          type: string
+          description: Unique ID to bind 2-phase transactions
+          example: UUID
+        paymentTransactionRef:
+          type: string
+          description: Unique ID for each payment
+          example: UUID
+        stan:
+          type: string
+          description: Systems trace audit number
+          example: '123456'
+        repeat:
+          type: boolean
+          description: Notifies this is a repeat message
+        additionalData:
+          type: string
+          description: Optional additional data stored on transaction
+        merchant:
+          $ref: '#/components/schemas/Merchant'
+        accountIdentifier:
+          $ref: '#/components/schemas/AccountIdentifier'
+        billing:
+          $ref: '#/components/schemas/Billing'
+    BalanceRequest:
+      type: object
+      properties:
+        accountIdentifier:
+          $ref: '#/components/schemas/AccountIdentifier'
+    PaymentAccount:
+      type: object
+      properties:
+        accountSummary:
+          $ref: '#/components/schemas/AccountSummary'
+        issuerSummary:
+          $ref: '#/components/schemas/Issuer'
+    PaymentAccountResponse:
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/Links'
+        paymentAccount:
+          $ref: '#/components/schemas/PaymentAccount'
+    ActivationRequest:
+      required:
+        - accountIdentifier
+        - paymentOrderRef
+        - paymentTransactionRef
+      type: object
+      properties:
+        paymentOrderRef:
+          type: string
+          description: Unique ID to bind 2-phase transactions
+          example: UUID
+        paymentTransactionRef:
+          type: string
+          description: Unique ID for each payment
+          example: UUID
+        accountIdentifier:
+          $ref: '#/components/schemas/AccountIdentifier'
+      description: Activate a single gift card
+    GiftCardDepositRequest:
+      required:
+        - amount
+        - currency
+        - orderRef
+        - simpleAccountIdentifier
+        - transactionRef
+      type: object
+      properties:
+        currency:
+          type: string
+          description: Currency for Payment
+          example: NOK
+        amount:
+          type: integer
+          description: Total amount of Payment (in cents), ie. 100Kr -> 10000
+          format: int64
+          example: 10000
+        description:
+          type: string
+          description: Payment description
+        orderRef:
+          type: string
+          description: Merchant ref, Unique from merchant per session
+          example: UUID
+        batchId:
+          type: string
+          description: Id used to combine multiple PreDeposit's to a single batch
+          example: UUID
+        transactionRef:
+          type: string
+          description: Unique ID for each transaction
+          example: UUID
+        simpleAccountIdentifier:
+          $ref: '#/components/schemas/SimpleAccountIdentifier'
+    SimpleAccountIdentifier:
+      type: object
+      properties:
+        accountKey:
+          type: string
+          description: Primary Account Number (PAN) for card/account. This is mandatory (if not paymentToken is provided)
+          example: '7013360000000001234'
+        cvc:
+          type: string
+          description: Card Verification Code. This is mandatory if the payment instrument is 'Gift Card', 'Credit Card' or 'Debit Card' and account key is specified
+          example: '123'
+        expiryDate:
+          type: string
+          description: Expiry date on card. Only applicable for payment instrument 'Credit Card' where expiry date is printed on card and accountKey is specified in request. Format MM/YY
+          example: 12/20
+        paymentToken:
+          type: string
+          description: Payment token identifying card. Can be used instead of accountKey + cvc for payment instrument 'Credit Card' and 'Debit Card'
+          example: DC-0d3fb236-2ac4-4887-b64d-ad0941c6a1d8
+    PreDepositResponseV1:
+      required:
+        - balance
+        - paymentId
+      type: object
+      properties:
+        paymentId:
+          type: string
+          description: Unique transaction id from PayEx
+          example: '4526987'
+        balance:
+          type: integer
+          description: Available amount on card/account (in cents).
+          format: int64
+          example: 10000
+        batchId:
+          type: string
+          description: Id used to combine multiple PreDeposit's to a single batch
+          example: UUID
+        _links:
+          $ref: '#/components/schemas/Links'
+    GiftCardRequest:
+      required:
+        - amount
+      type: object
+      properties:
+        amount:
+          type: integer
+          description: Total amount of Payment (in cents), ie. 100Kr -> 10000. If amount is 0 no deposit is made.
+          format: int64
+          example: 10000
+        email:
+          type: string
+          description: customers email
+          example: example@exampleprovider.com
+        msisdn:
+          type: string
+          description: customers mobile number
+          example: '99999999'
+        productId:
+          type: string
+          description: Product id provided by payex
+          example: '7854'
+        paymentTransactionRef:
+          type: string
+          description: Optional Unique ID for each payment
+          example: UUID
+    AccountSummaryGiftCard:
+      required:
+        - accountKey
+        - cvc
+        - expiryDate
+      type: object
+      properties:
+        expiryDate:
+          type: string
+          description: Expiry date stored on card. Format YYYY-MM-dd
+          example: '2020-01-15'
+        accountKey:
+          type: string
+          description: Primary Account Number (PAN) for card/account.
+          example: '7013360000000001234'
+        paymentToken:
+          type: string
+          description: An alphanumeric value used when identifying a card/account
+          example: DC-7eaf70eb-28b4-4c67-99e8-bca7557de561
+        cvc:
+          type: string
+          description: Card Verification Code
+          example: '123'
+        balance:
+          type: integer
+          description: Available amount on card/account (in cents).
+          format: int64
+          example: 10000
+    GiftCardResponse:
+      required:
+        - paymentId
+      type: object
+      properties:
+        paymentId:
+          type: string
+          description: Unique transaction id from PayEx
+          example: '4526987'
+        _links:
+          $ref: '#/components/schemas/Links'
+        accountSummaryGiftCard:
+          $ref: '#/components/schemas/AccountSummaryGiftCard'
+    GiftCardActivityDetails:
+      type: object
+      properties:
+        cardStatus:
+          type: string
+          description: The status of the gift card
+          example: OK
+        currency:
+          type: string
+          description: The currency of the gift cards original balance, represented in ISO 4217 format
+          example: NOK
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/GiftCardTransaction'
+    GiftCardTransaction:
+      type: object
+      properties:
+        transactionId:
+          type: integer
+          description: A unique identifier for the gift card transaction
+          format: int64
+          example: 12291735
+        transactionType:
+          type: string
+          description: The type of transaction, such as Purchase, or Deposit
+          example: Deposit
+          enum:
+            - Authorize
+            - Capture
+            - Cancel
+            - Credit
+            - Reversal
+            - Manual authorize
+            - Purchase
+            - Withdrawal
+            - Deposit
+            - Interest
+            - Tax
+            - Reconciliation
+            - Clear
+            - Unknown
+        amount:
+          type: integer
+          description: The monetary value of the transaction
+          format: int64
+          example: 10000
+        currency:
+          type: string
+          description: The currency in which the transaction was made, represented in ISO 4217 format
+          example: NOK
+        transmissionTime:
+          type: string
+          description: The timestamp when the transaction was processed
+          format: date-time
+          example: '2025-01-24T12:05:09.5Z'
+        status:
+          type: string
+          description: The current processing status of the transaction
+          example: '0'
+        state:
+          type: string
+          description: The final state of the transaction
+          example: OK
+          enum:
+            - OK
+            - FAILED
+            - REVERSED
+            - UNKNOWN
+        merchant:
+          $ref: '#/components/schemas/Merchant'
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+        hreflang:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+        deprecation:
+          type: string
+        profile:
+          type: string
+        name:
+          type: string
+        templated:
+          type: boolean
+  parameters:
+    Hmac:
+      name: Hmac
+      in: header
+      description: HMAC authentication filter
+      required: true
+      schema:
+        type: string
+    Session-Id:
+      name: Session-Id
+      in: header
+      description: Unique id for each request. Use GUID
+      required: false
+      schema:
+        type: string
+        format: uuid
+      example: 3749abda-ef16-4104-aeee-a3a1912be08a
+    Agreement-Merchant-Id:
+      name: Agreement-Merchant-Id
+      in: header
+      description: Created by PayEx
+      required: true
+      schema:
+        type: string
+    Transmission-Time:
+      name: Transmission-Time
+      in: header
+      description: 'Transmission date & time ISO-8601, ex: YYYY-mm-DDT23:59:59.000Z'
+      required: true
+      schema:
+        type: string
+        format: date-time
+      example: '2025-03-12T08:50:57.706180800Z'
+    Username:
+      name: Username
+      in: header
+      description: Name or id of user requesting changes, used for audit logging
+      required: true
+      schema:
+        type: string
+      example: SEUTV838WEB$
+  securitySchemes:
+    JWT:
+      type: apiKey
+      description: Oauth2 JWT bearer token
+      name: Authorization
+      in: header
+      x-bearer-format: Bearer
