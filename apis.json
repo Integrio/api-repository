@@ -94,7 +94,7 @@
         "properties": [
           {
             "type": "X-openapi",
-            "url": "payex/payex-payments-openapi.yaml"
+            "url": "https://raw.githubusercontent.com/Integrio/api-repository/refs/heads/main/payex/payex-payments-openapi.yaml"
           }
         ]
       }
