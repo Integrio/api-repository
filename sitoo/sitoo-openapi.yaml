@@ -1985,6 +1985,192 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
+  /sites/{siteid}/giftcard:
+    post:
+      summary: Add Gift Card
+      operationId: addGiftCard
+      tags:
+        - Gift Cards
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: query
+          name: deliverytype
+          schema:
+            $ref: '#/components/schemas/DeliveryType'
+        - in: query
+          name: deliverytext
+          schema:
+            type: string
+        - in: query
+          name: email
+          description: Email address when using deliverytype "email"
+          schema:
+            type: string
+        - in: query
+          name: mobile
+          description: Mobile in MSISDN format when using deliverytype "sms"
+          schema:
+            type: string
+        - in: query
+          name: product_reference
+          schema:
+            type: string
+        - in: query
+          name: pin
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GiftCard'
+      responses:
+        200:
+          description: Returns GiftCardResponse
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GiftCardResponse'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /sites/{siteid}/giftcard/{cardnumber}:
+    get:
+      summary: Get Gift Card
+      operationId: getGiftCard
+      tags:
+        - Gift Cards
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: cardnumber
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: pin
+          schema:
+            type: string
+      responses:
+        200:
+          description: Returns GiftCardResponse
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GiftCardResponse'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /sites/{siteid}/giftcards/{cardnumber}/transactions:
+    post:
+      summary: Add Gift Card Transaction
+      operationId: addGiftCardTransaction
+      tags:
+        - Gift Cards
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: cardnumber
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: pin
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GiftCardTransaction'
+      responses:
+        200:
+          description: Returns GiftCardResponse
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GiftCardResponse'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    delete:
+      summary: Delete Gift Card Transaction
+      operationId: deleteGiftCardTransaction
+      description: Used for rollback of transaction that has been performed.
+      tags:
+        - Gift Cards
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: cardnumber
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              description: Array of transaction ids
+              items:
+                type: string
+      responses:
+        200:
+          description: Returns GiftCardResponse
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GiftCardResponse'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
 components:
   securitySchemes:
     BasicAuth:
@@ -3947,7 +4133,343 @@ components:
         cashdiff_reasoncomment:
           type: string
           description: An optional comment on the reason for a difference between the expected and the counted cash when closing the register.
-
-
+    GiftCardTransaction:
+      type: object
+      description: Gift card transaction object.
+      properties:
+        transactionid:
+          type: string
+          description: The unique id of this transaction.
+          readOnly: true
+        date:
+          type: string
+          format: date-time
+          description: The date that this transaction occurred.
+          readOnly: true
+        moneyamount:
+          $ref: '#/components/schemas/Money'
+          description: Money added or subtracted by this transaction.
+        merchant_reference:
+          type: string
+          description: Optional merchant/store reference for this transaction. (Sitoo POS will send warehouse external ID in this field)
+        staff_reference:
+          type: string
+          description: Optional staff reference for this transaction.
+        transaction_reference:
+          type: string
+          description: Optional reference for this transaction. (Sitoo POS will send receipt ID in this field)
+      required:
+        - moneyamount
+    GiftCard:
+      type: object
+      description: The gift card object.
+      properties:
+        type:
+          $ref: '#/components/schemas/GiftCardType'
+          description: The type of giftcard.
+        currencycode:
+          type: string
+          description: Currency for the giftcard. (ISO 4217, alpha-3)
+        cardnumber:
+          type: string
+          description: The unique id of the gift card (card number).
+        cardnumber_display:
+          type: string
+          readOnly: true
+          description: The masked card number, used for public display.
+        redeemable:
+          type: boolean
+          readOnly: true
+          description: If true, the gift card is active for redeem with the moneyamount available.
+        date_expires:
+          type: string
+          format: date-time
+          readOnly: true
+          description: The date for the expiration of the gift card. (If passed, the gift card is invalid)
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+          description: The date that the gift card was created.
+        moneyamount:
+          $ref: '#/components/schemas/Money'
+          readOnly: true
+          description: Current monetary value of the gift card.
+        requirespin:
+          type: boolean
+          readOnly: true
+          description: Indicates if PIN is required when redeeming the gift card.
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/GiftCardTransaction'
+          description: The transactions for this gift card. An array of giftcardtransaction.
+      required:
+        - type
+        - currencycode
+    GiftCardResponse:
+      type: object
+      description: Response object for gift card operations.
+      properties:
+        giftcard:
+          $ref: '#/components/schemas/GiftCard'
+          description: The gift card object. See giftcard.
+        addedtransactionids:
+          type: array
+          description: An array of transactionids added by the request. (Used for rollback)
+          items:
+            type: string
+        receipttext:
+          type: string
+          description: Optional text printed on the receipt.
+        print_voucher:
+          type: boolean
+          description: If set to true, a gift card voucher should be printed.
+        print_pin:
+          type: string
+          description: Optional PIN to be printed (if required).
+    GiftCardType:
+      type: string
+      enum:
+        - giftcard
+        - creditnote
+      x-ms-enum:
+        name: GiftCardType
+        modelAsString: false
+        values:
+          - value: giftcard
+            name: Gift Card
+          - value: creditnote
+            name: Credit Note
+    DeliveryType:
+      type: string
+      enum:
+        - email
+        - preprinted
+        - printout
+        - sms
+      x-ms-enum:
+        name: DeliveryType
+        modelAsString: false
+        values:
+          - value: email
+            name: Email
+          - value: preprinted
+            name: PrePrinted
+          - value: printout
+            name: Printout
+          - value: sms
+            name: SMS
+    OrderDataEvent:
+      type: object
+      description: Order event data object.
+      properties:
+        eshop_id:
+          type: integer
+          description: The Sitoo ID of the eshop (site)
+        order_id:
+          type: integer
+          description: The Sitoo ID of the order
+        warehouse_id:
+          type: integer
+          description: The Sitoo ID of the warehouse
+        order_event_type:
+          type: string
+          description: The type of order event
+          enum:
+            - add
+            - update
+            - ready-for-pickup
+            - pickup-rejected
+            - email-receipt
+        order_state_changed:
+          type: string
+          description: If the event caused the order state to change, this property will hold the new value
+          enum:
+            - open
+            - closed
+            - cancelled
+      required:
+        - eshop_id
+        - order_id
+        - order_event_type
+    OrderDeliveryDataEvent:
+      type: object
+      description: Order delivery event data object.
+      properties:
+        eshop_id:
+          type: integer
+          description: The Sitoo ID of the eshop (site)
+        order_id:
+          type: integer
+          description: The Sitoo ID of the order
+        order_delivery_id:
+          type: integer
+          description: The Sitoo ID of the order delivery
+        warehouse_id:
+          type: integer
+          description: The Sitoo ID of the warehouse for the order delivery. Note that this can differ from the warehouse_id of the order
+        order_delivery_state_changed:
+          type: string
+          description: If the event caused the order delivery state to change, this property will hold the new value
+          enum:
+            - new
+            - ready-to-ship
+            - in-transit
+            - arrived
+            - ready-for-pickup
+            - delivered
+            - cancelled
+        delivery_type:
+          type: string
+          description: The type of order delivery event
+          enum:
+            - add
+            - update
+            - cancel
+      required:
+        - eshop_id
+        - order_id
+        - order_delivery_id
+        - delivery_type
+    ShipmentDataEvent:
+      type: object
+      description: Shipment event data object.
+      properties:
+        shipment_id:
+          type: integer
+          description: The Sitoo ID of the shipment
+        shipment_event_type:
+          type: string
+          description: The type of shipment event
+          enum:
+            - add
+            - update
+        shipment_state_changed:
+          type: string
+          description: If the event caused the shipment state to change, this property will hold the new value
+          enum:
+            - new
+            - in-transit
+            - received
+            - cancelled
+      required:
+        - shipment_id
+        - shipment_event_type
+    ShipmentV3DataEvent:
+      type: object
+      description: Object sent for events from Shipments v3. All properties reflect values after the event has occurred.
+      properties:
+        shipment_id:
+          type: string
+          description: Unique ID of the shipment in Sitoo
+        shipment_version:
+          type: integer
+          description: Version of the shipment
+        shipment_event_type:
+          type: string
+          description: The type of shipment event
+          enum:
+            - create
+            - set-state
+            - set-info
+            - add-package
+            - update-package
+            - delete-package
+            - add-arrived-packages
+            - add-received-items
+            - add-received-items-undeclared
+            - remove-stock
+        shipment_state:
+          type: string
+          description: The state of the shipment
+          enum:
+            - new
+            - packed
+            - transport-ordered
+            - ready-for-pickup
+            - in-transit
+            - arrived
+            - received
+            - closed
+            - closed-incomplete
+            - cancelled
+        all_packages_arrived:
+          type: boolean
+          description: All packages have arrived
+        all_items_received:
+          type: boolean
+          description: All items have been received
+        total_item_undeclared_quantity:
+          type: integer
+          description: The total number of received items not declared for the shipment
+      required:
+        - shipment_id
+        - shipment_version
+        - shipment_event_type
+        - shipment_state
+        - all_packages_arrived
+        - all_items_received
+        - total_item_undeclared_quantity
+    StoreZReportDataEvent:
+      type: object
+      description: Data object for Store Z-report events.
+      properties:
+        store_zreport_id:
+          type: string
+          format: uuid
+          description: UUID for the Store Z-report
+        store_id:
+          type: string
+          description: Store ID (external ID of the Store in Sitoo)
+      required:
+        - store_zreport_id
+        - store_id
+    WarehouseTransactionDataEvent:
+      type: object
+      description: Data object for a warehouse transaction in Sitoo.
+      properties:
+        warehouse_transaction_id:
+          type: integer
+          description: The ID of the warehouse transaction in Sitoo
+        warehouse_id:
+          type: integer
+          description: The ID of the warehouse for the transaction in Sitoo
+        warehouse_external_id:
+          type: string
+          description: The External ID of the warehouse for the transaction
+        transaction_type:
+          type: string
+          description: The type of warehouse transaction
+          enum:
+            - manual-in
+            - manual-out
+            - sales
+            - refund
+            - stock-taking
+      required:
+        - warehouse_transaction_id
+        - warehouse_id
+        - transaction_type
+    ZReportDataEvent:
+      type: object
+      description: Data object for a Z-report event in Sitoo.
+      properties:
+        eshop_id:
+          type: integer
+          description: The Sitoo ID of the eshop (site)
+        store_id:
+          type: string
+          description: Store ID (external ID of the Store in Sitoo)
+        register_id:
+          type: string
+          description: The Sitoo ID of the register that created the Z-report
+        zreport_id:
+          type: integer
+          description: The Sitoo ID of the Z-report
+      required:
+        - eshop_id
+        - register_id
+        - zreport_id
 security:
   - BasicAuth: []
