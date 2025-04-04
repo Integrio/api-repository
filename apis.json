@@ -83,7 +83,7 @@
         "properties": [
           {
             "type": "X-openapi",
-            "url": "payex/payex-payments-openapi.yaml"
+            "url": "payex/payex-openapi.yaml"
           }
         ]
       },
