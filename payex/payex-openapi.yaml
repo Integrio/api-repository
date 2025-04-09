@@ -122,6 +122,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/CreateGiftCardResponse'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/ping:
     post:
       tags:
@@ -147,6 +201,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/PingResponse'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/payment-account/{paymentAccountId}/payment/{paymentId}/reversal:
     post:
       tags:
@@ -182,6 +290,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/payment-account/{paymentAccountId}/payment/{paymentId}/product-reversal:
     post:
       tags:
@@ -217,6 +379,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/payment-account/{paymentAccountId}/payment/{paymentId}/capture:
     post:
       tags:
@@ -252,6 +468,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/payment-account/{paymentAccountId}/payment/{paymentId}/cancel:
     post:
       tags:
@@ -287,6 +557,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/payment-account/payment/purchase:
     post:
       tags:
@@ -312,6 +636,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/PaymentResponse'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/payment-account/payment/pre-deposit:
     post:
       tags:
@@ -337,6 +715,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/PreDepositResponse'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/payment-account/payment/deposit:
     post:
       tags:
@@ -362,6 +794,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/PaymentResponse'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/payment-account/payment/credit:
     post:
       tags:
@@ -387,6 +873,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/PaymentResponse'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/payment-account/payment/capture:
     post:
       tags:
@@ -412,6 +952,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/PaymentResponse'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/payment-account/payment/authorize:
     post:
       tags:
@@ -437,6 +1031,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/PaymentResponse'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/payment-account/balance:
     post:
       tags:
@@ -462,6 +1110,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/PaymentAccountResponse'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/payment-account/activate:
     post:
       tags:
@@ -488,6 +1190,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/PaymentResponse'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/gift-card/pre-deposit:
     post:
       tags:
@@ -513,6 +1269,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/PreDepositResponseV1'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
       deprecated: true
   /api/payments/gift-card/get-new-gift-card:
     post:
@@ -539,6 +1349,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/GiftCardResponse'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
       deprecated: true
   /api/payments/gift-card/batch/{batchId}/cancel:
     patch:
@@ -560,6 +1424,60 @@ paths:
       responses:
         '200':
           description: OK
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/gift-card/batch/{batchId}/activate:
     patch:
       tags:
@@ -580,6 +1498,60 @@ paths:
       responses:
         '200':
           description: OK
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/payment-account/{paymentAccountId}/payment:
     get:
       tags:
@@ -609,6 +1581,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/PaymentResponse'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/payment-account/{paymentAccountId}/payment/{paymentId}:
     get:
       tags:
@@ -638,6 +1664,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/PaymentResponse'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/payment-account/{paymentAccountId}/payment/{paymentId}/transactions/{transactionId}:
     get:
       tags:
@@ -672,6 +1752,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/payment-account/{paymentAccountId}/payment/{paymentId}/operations/{operationId}:
     get:
       tags:
@@ -706,6 +1840,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/OperationResponse'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/payments/gift-card/transactions/card/{cardId}:
     get:
       tags:
@@ -731,6 +1919,60 @@ paths:
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/GiftCardActivityDetails'
+        '400':
+          description: Input error, Missing or illegal input, Product reversal missing product, Transactional problem
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Access validation error or No valid agreement found
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Entity not found or Entity not found with action code
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '409':
+          description: Resource conflict
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '429':
+          description: Too many requests
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Internal server error or Communication error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '503':
+          description: Service unavailable or Timeout error
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '501':
+          description: Requested API method not implemented
+          content:
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
 components:
   schemas:
     CreateGiftCardRequest:
@@ -1785,6 +3027,23 @@ components:
           type: string
         templated:
           type: boolean
+    ProblemDetail:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+        actionCode:
+          type: string
+        actionCodeDesc:
+          type: string
   parameters:
     Hmac:
       name: Hmac
