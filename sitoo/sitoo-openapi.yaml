@@ -4285,6 +4285,26 @@ components:
             - warehouse-transaction
             - z-report
             - store-z-report
+          x-ms-enum:
+            name: event_type
+            modelAsString: false
+            values:
+              - value: order
+                name: Prder
+              - value: order-delivery
+                name: OrderDelivery
+              - value: booking
+                name: Booking
+              - value: shipment
+                name: Shipment
+              - value: shipment-v3
+                name: ShipmentV3
+              - value: warehouse-transaction
+                name: WarehouseTransaction
+              - value: z-report
+                name: ZReport
+              - value: store-z-report
+                name: StoreZReport
         event_date:
           type: integer
           format: int64
@@ -4295,25 +4315,25 @@ components:
           description: ID for the Sitoo account
         data:
           oneOf:
-            - $ref: '#/components/schemas/OrderData'
-            - $ref: '#/components/schemas/OrderDeliveryData'
-            - $ref: '#/components/schemas/ShipmentData'
-            - $ref: '#/components/schemas/ShipmentV3Data'
-            - $ref: '#/components/schemas/WarehouseTransactionData'
-            - $ref: '#/components/schemas/ZReportData'
-            - $ref: '#/components/schemas/StoreZReportData'
+            - $ref: '#/components/schemas/OrderDataEvent'
+            - $ref: '#/components/schemas/OrderDeliveryDataEvent'
+            - $ref: '#/components/schemas/ShipmentDataEvent'
+            - $ref: '#/components/schemas/ShipmentV3DataEvent'
+            - $ref: '#/components/schemas/WarehouseTransactionDataEvent'
+            - $ref: '#/components/schemas/ZReportDataEvent'
+            - $ref: '#/components/schemas/StoreZReportDataEvent'
           discriminator:
             propertyName: event_type
             mapping:
-              order: '#/components/schemas/OrderData'
-              order-delivery: '#/components/schemas/OrderDeliveryData'
-              booking: '#/components/schemas/OrderData'
-              shipment: '#/components/schemas/ShipmentData'
-              shipment-v3: '#/components/schemas/ShipmentV3Data'
-              warehouse-transaction: '#/components/schemas/WarehouseTransactionData'
-              z-report: '#/components/schemas/ZReportData'
-              store-z-report: '#/components/schemas/StoreZReportData'
-    OrderData:
+              order: '#/components/schemas/OrderDataEvent'
+              order-delivery: '#/components/schemas/OrderDeliveryDataEvent'
+              booking: '#/components/schemas/OrderDataEvent'
+              shipment: '#/components/schemas/ShipmentDataEvent'
+              shipment-v3: '#/components/schemas/ShipmentV3DataEvent'
+              warehouse-transaction: '#/components/schemas/WarehouseTransactionDataEvent'
+              z-report: '#/components/schemas/ZReportDataEvent'
+              store-z-report: '#/components/schemas/StoreZReportDataEvent'
+    OrderDataEvent:
       type: object
       description: Order event data object.
       properties:
@@ -4346,7 +4366,7 @@ components:
         - eshop_id
         - order_id
         - order_event_type
-    OrderDeliveryData:
+    OrderDeliveryDataEvent:
       type: object
       description: Order delivery event data object.
       properties:
@@ -4385,7 +4405,7 @@ components:
         - order_id
         - order_delivery_id
         - delivery_type
-    ShipmentData:
+    ShipmentDataEvent:
       type: object
       description: Shipment event data object.
       properties:
@@ -4409,7 +4429,7 @@ components:
       required:
         - shipment_id
         - shipment_event_type
-    ShipmentV3Data:
+    ShipmentV3DataEvent:
       type: object
       description: Object sent for events from Shipments v3. All properties reflect values after the event has occurred.
       properties:
@@ -4464,7 +4484,7 @@ components:
         - all_packages_arrived
         - all_items_received
         - total_item_undeclared_quantity
-    StoreZReportData:
+    StoreZReportDataEvent:
       type: object
       description: Data object for Store Z-report events.
       properties:
@@ -4478,7 +4498,7 @@ components:
       required:
         - store_zreport_id
         - store_id
-    WarehouseTransactionData:
+    WarehouseTransactionDataEvent:
       type: object
       description: Data object for a warehouse transaction in Sitoo.
       properties:
@@ -4504,7 +4524,7 @@ components:
         - warehouse_transaction_id
         - warehouse_id
         - transaction_type
-    ZReportData:
+    ZReportDataEvent:
       type: object
       description: Data object for a Z-report event in Sitoo.
       properties:
