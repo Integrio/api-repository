@@ -2,7 +2,7 @@ openapi: 3.0.4
 info:
   title: Sitoo API
   description: Sitoo OpenAPI specification derived from [Sitoo API Reference](https://developer.sitoo.com/api-reference/overview).
-  version: 2.0.0
+  version: 2.0.1
 
 servers:
   - url: https://api-sandbox.mysitoo.com/v2/accounts/{accountId}/
