@@ -2171,6 +2171,32 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
+  /events:
+    post:
+      summary: Add Events
+      description: |
+        NOTE! This is not an endpoint that the Sitoo API exposes.
+        It is an endpoint that Sitoo expects the SPI backend to implement.
+      operationId: addEvents
+      tags:
+        - SPI Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Event'
+      responses:
+        200:
+          description: Successful. Returns empty body
+        400:
+          description: Invalid request. Data sent from client is invalid. 
+        401:
+          description: Missing or bad authentication.
+        500:
+          description: Internal Server Error
 components:
   securitySchemes:
     BasicAuth:
