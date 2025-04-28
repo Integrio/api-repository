@@ -1,0 +1,129 @@
+openapi: 3.0.4
+info:
+  title: Sites
+  version: v1.0
+servers:
+  - url: https://graph.microsoft.com/v1.0/
+    description: Core
+paths:
+  '/sites/{site-id}/lists/{list-id}/items':
+    get:
+      tags:
+        - sites.list
+      summary: List items
+      description: Get the collection of items in a list.
+      externalDocs:
+        description: Find more info here
+        url: https://learn.microsoft.com/graph/api/listitem-list?view=graph-rest-1.0
+      operationId: site.list_ListItem
+      parameters:
+        - name: site-id
+          in: path
+          description: The unique identifier of site
+          required: true
+          style: simple
+          schema:
+            type: string
+          x-ms-docs-key-type: site
+        - name: list-id
+          in: path
+          description: The unique identifier of list
+          required: true
+          style: simple
+          schema:
+            type: string
+          x-ms-docs-key-type: list
+        - $ref: '#/components/parameters/top'
+        - $ref: '#/components/parameters/skip'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/count'
+        - name: $orderby
+          in: query
+          description: Order items by property values
+          style: form
+          explode: false
+          schema:
+            uniqueItems: true
+            type: array
+            items:
+              type: string
+        - name: $select
+          in: query
+          description: Select properties to be returned
+          style: form
+          explode: false
+          schema:
+            uniqueItems: true
+            type: array
+            items:
+              type: string
+        - name: $expand
+          in: query
+          description: Expand related entities
+          style: form
+          explode: false
+          schema:
+            uniqueItems: true
+            type: array
+            items:
+              type: string
+      responses:
+        2XX:
+          $ref: '#/components/responses/microsoft.graph.listItemCollectionResponse'
+        default:
+          $ref: '#/components/responses/error'
+      x-ms-pageable:
+        nextLinkName: '@odata.nextLink'
+        operationName: listMore
+      x-ms-docs-operation-type: operation
+components:
+  responses:
+    microsoft.graph.listItemCollectionResponse:
+      description: Retrieved collection
+    error:
+      description: error
+  parameters:
+    top:
+      name: $top
+      in: query
+      description: Show only the first n items
+      style: form
+      explode: false
+      schema:
+        minimum: 0
+        type: integer
+      example: 50
+    skip:
+      name: $skip
+      in: query
+      description: Skip the first n items
+      style: form
+      explode: false
+      schema:
+        minimum: 0
+        type: integer
+    search:
+      name: $search
+      in: query
+      description: Search items by search phrases
+      style: form
+      explode: false
+      schema:
+        type: string
+    filter:
+      name: $filter
+      in: query
+      description: Filter items by property values
+      style: form
+      explode: false
+      schema:
+        type: string
+    count:
+      name: $count
+      in: query
+      description: Include count of items
+      style: form
+      explode: false
+      schema:
+        type: boolean

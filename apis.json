@@ -97,6 +97,17 @@
             "url": "sitoo/sitoo-openapi.yaml"
           }
         ]
+      },
+      {
+        "name": "SharePoint Lists API",
+        "description": "SharePoint Lists API",
+        "baseUrl": "https://graph.microsoft.com/v1.0/sites/{site-id}/lists/",
+        "properties": [
+          {
+            "type": "X-openapi",
+            "url": "sharepoint-lists-api/sharepoint-lists-openapi.yaml"
+          }
+        ]
       }
     ]
   }
