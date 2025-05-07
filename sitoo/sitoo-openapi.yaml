@@ -2,7 +2,7 @@ openapi: 3.0.4
 info:
   title: Sitoo API
   description: Sitoo OpenAPI specification derived from [Sitoo API Reference](https://developer.sitoo.com/api-reference/overview).
-  version: 2.1.0
+  version: 2.1.1
 
 servers:
   - url: https://api-sandbox.mysitoo.com/v2/accounts/{accountId}/
@@ -3231,7 +3231,7 @@ components:
           type: string
           
         warehouseid: 
-          type: string
+          type: integer
           nullable: true
         datereserved: 
           type: string
