@@ -2,7 +2,7 @@ openapi: 3.0.4
 info:
   title: Sitoo API
   description: Sitoo OpenAPI specification derived from [Sitoo API Reference](https://developer.sitoo.com/api-reference/overview).
-  version: 2.0.2
+  version: 2.1.0
 
 servers:
   - url: https://api-sandbox.mysitoo.com/v2/accounts/{accountId}/
@@ -2171,6 +2171,370 @@ paths:
           description: Too Many Requests.
         500:
           description: Internal Server Error.
+  /sites/{siteid}/warehouses:
+    post:
+      summary: Add Warehouse
+      operationId: addWarehouse
+      tags:
+        - Warehouses
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Warehouse'
+      responses:
+        200:
+          description: Returns warehouseid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  usetype:
+                    type: integer
+                  currencycode:
+                    type: string
+                  name:
+                    type: string
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    get:
+      summary: Get Warehouses
+      operationId: getWarehouses
+      tags:
+        - Warehouses
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: query
+          name: start
+          schema:
+            type: integer
+        - in: query
+          name: num
+          schema:
+            type: integer
+        - in: query
+          name: fields
+          schema:
+            type: string
+      responses:
+        200:
+          description: Returns an envelope with items of type warehouse.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalcount:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Warehouse'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /sites/{siteid}/warehouses/{warehouseid}:
+    get:
+      summary: Get Warehouse
+      operationId: getWarehouse
+      tags:
+        - Warehouses
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: warehouseid
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: Returns an item of type warehouse.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Warehouse'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    put:
+      summary: Update Warehouse
+      operationId: updateWarehouse
+      tags:
+        - Warehouses
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: warehouseid
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Warehouse'
+      responses:
+        200:
+          description: Returns true
+          content:
+            application/json:
+              schema:
+                type: boolean
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    delete:
+      summary: Delete Warehouse
+      operationId: deleteWarehouse
+      tags:
+        - Warehouses
+      parameters:
+        - in: path
+          name: siteid
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: warehouseid
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: Returns true
+          content:
+            application/json:
+              schema:
+                type: boolean
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+  /sites/{siteid}/warehouses/{warehouseid}/warehouseitems:
+    get:
+      summary: Get Warehouse Items
+      description: Returns an envelope with items of type `WarehouseItem` for a warehouse.
+      tags:
+        - Warehouses
+      parameters:
+        - name: siteid
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the site.
+        - name: warehouseid
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the warehouse.
+        - name: start
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: The index of the item to start from.
+        - name: num
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: The number of items to return.
+        - name: datelastmodifiedfrom
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Filter on items modified starting from this timestamp.
+        - name: datelastmodifiedto
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Filter on items modified ending before this timestamp.
+        - name: sku
+          in: query
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+          description: Filter on SKU. Comma-separated values.
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - warehouseitemid
+              - -warehouseitemid
+              - sku
+              - -sku
+              - binlocation
+              - -binlocation
+              - decimalthreshold
+              - -decimalthreshold
+              - decimaltotal
+              - -decimaltotal
+              - decimalreserved
+              - -decimalreserved
+              - decimalavailable
+              - -decimalavailable
+              - moneytotal
+              - -moneytotal
+              - datelastmodified
+              - -datelastmodified
+              - datelaststocktaking
+              - -datelaststocktaking
+            default: warehouseitemid
+          description: Sort the result by one of the supported fields.
+        - name: fields
+          in: query
+          required: false
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+          description: |
+            Comma-separated list of fields to return.
+            Defaults to: warehouseitemid, sku, binlocation, decimalthreshold, decimaltotal, moneytotal, datelastmodified, datelaststocktaking
+      responses:
+        200:
+          description: A list of warehouse items wrapped in an envelope.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalcount:
+                    type: integer
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WarehouseItem'
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+    put:
+      summary: Batch Set Warehouse Items
+      description: Updates or sets multiple `WarehouseItem` objects in a warehouse.
+      tags:
+        - Warehouses
+      parameters:
+        - name: siteid
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the site.
+        - name: warehouseid
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The ID of the warehouse.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/WarehouseItem'
+      responses:
+        200:
+          description: Returns a batch envelope with warehouseitemid for the warehouseitems set.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statuscode:
+                    type: integer
+                  return:
+                    type: integer
+        400:
+          description: Bad Request. Invalid syntax, missing required argument or invalid request.
+        401:
+          description: Unauthorized. Authorization failed.
+        404:
+          description: Resource not found. The url is invalid.
+        429:
+          description: Too Many Requests.
+        500:
+          description: Internal Server Error.
+
+
   /events:
     post:
       summary: Add Events
@@ -2215,36 +2579,36 @@ components:
           description: |
             Site ID. This ID has been deprecated and eshopid should be used in its place for API endpoint URLs where {siteid} is specified.
           deprecated: true
-          readOnly: true
+          
         protocol:
           type: string
           description: Site protocol (e.g., http or https).
-          readOnly: true
+          
         server:
           type: string
           description: Server (domain).
-          readOnly: true
+          
         abspath:
           type: string
           description: Absolute path.
-          readOnly: true
+          
         siteurl:
           type: string
           description: |
             Request to the site (protocol + "://" + server + abspath).
-          readOnly: true
+          
         eshopid:
           type: integer
           description: |
             Eshop ID. This ID should be used in place of siteid in API endpoint URLs where {siteid} is specified.
-          readOnly: true
+          
     Product:
       type: object
       properties:
         productid: 
           type: integer
           description: The unique internal product ID. It is unique over all sites in the system. The productid is read-only and automatically generated when adding new products. It is then used as the identifier field for update/delete endpoints.
-          readOnly: true
+          
         sku: 
           type: string
           description: Stock Keeping Unit (ie. the article number). Should only contain [A-Za-z0-9_+-/]. The sku is a required field for adding new products and needs to be unique within a site.
@@ -2362,7 +2726,7 @@ components:
           type: integer
           description: If null then it is a single product, otherwise it is a variant. Variantparentid refers to the owning parent's productid. The product which has a self reference (ie. the variantparentid is same as the produtid) is the main variant (ie. the owner).
           nullable: true
-          readOnly: true
+          
         barcode: 
           type: string
           description: Barcode for the product.
@@ -2391,29 +2755,29 @@ components:
           type: boolean
           description: Indicates if the product is in offer mode or not.
           deprecated: true
-          readOnly: true
+          
         moneyfinalprice:
           $ref: "#/components/schemas/Money"
           description: The final price of the product. If in offer mode then the final price is offerprice else price. (Deprecated, use price lists instead)
           deprecated: true
-          readOnly: true
+          
         vatvalue: 
           type: number
           description: The VAT in percentage.
-          readOnly: true
+          
         productgrouptype: 
           type: integer
           description: The product group type.
-          readOnly: true
+          
         pricelisthasvolume: 
           type: boolean
           description: True if product has volume pricing. (Deprecated, use price lists instead)
           deprecated: true
-          readOnly: true
+          
         variant: 
           type: array
           description: Array of variant items.
-          readOnly: true
+          
           items: 
             type: object
             properties: 
@@ -2448,11 +2812,11 @@ components:
         datecreated: 
           type: integer
           description: Timestamp when the product was created.
-          readOnly: true
+          
         datemodified: 
           type: integer
           description: Timestamp when the product was last modified.
-          readOnly: true
+          
     BatchAddProductResponse:
       type: array
       items:
@@ -2495,7 +2859,7 @@ components:
           pricelistid: 
             type: integer
             description: Price list ID (default pricelist has ID 1 on all systems).
-            readOnly: true
+            
           pricelistname: 
             type: string
             description: Price list name.
@@ -2555,7 +2919,7 @@ components:
       properties:
           vatid: 
             type: integer
-            readOnly: true
+            
             description: The ID of the product group (vatid).
           value: 
             type: integer
@@ -2595,7 +2959,7 @@ components:
       properties:
         userid:
           type: string
-          readOnly: true
+          
           description: Unique ID of user.
         email:
           type: string
@@ -2659,12 +3023,12 @@ components:
         datecreated:
           type: string
           format: date-time
-          readOnly: true
+          
           description: Creation date.
         datemodified:
           type: string
           format: date-time
-          readOnly: true
+          
           description: Last modified date.
         pricelistid:
           type: integer
@@ -2721,11 +3085,11 @@ components:
       properties:
         orderid: 
           type: integer
-          readOnly: true
+          
           description: The ID of the order. The order ID is unique for a system.
         eshopid: 
           type: integer
-          readOnly: true
+          
           description: The eshopid that this order belongs to.
         externalid: 
           type: string
@@ -2737,12 +3101,12 @@ components:
           description: The ID of the order that was the source of this refund.
         checkouttypeid: 
           type: integer
-          readOnly: true
+          
           deprecated: true
           description: Checkout type ID (Webshop orders only).
         deliverytypeid: 
           type: integer
-          readOnly: true
+          
           deprecated: true
           description: Delivery type ID (Webshop orders only).
         email: 
@@ -2798,55 +3162,55 @@ components:
           description: Checkout Reference (typically set by payment providers).
         moneytotal_net: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
           description: Total net value for items (no checkout or payment cost is included).
         moneytotal_vat: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
         moneycheckout_net: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
         moneycheckout_vat: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
         moneytotal_gross_checkout: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
           description: Total checkout value (ie. checkout_net + checkout_vat).
         moneydelivery_net: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
         moneydelivery_vat: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
         moneytotal_gross_delivery: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
         moneyfinal_net: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
         moneyfinal_vat: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
         moneyfinal_salestax: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
         moneytotal_gross_roundoff: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
         moneytotal_gross_all: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
         checkouttypename: 
           type: string
           deprecated: true
         checkoutmethodid: 
           type: integer
-          readOnly: true
+          
           deprecated: true
         checkoutmethodsubid: 
           type: integer
-          readOnly: true
+          
           deprecated: true
         deliverytypename: 
           type: string
@@ -2861,11 +3225,11 @@ components:
           $ref: '#/components/schemas/OrderType'
         userid_staff: 
           type: string
-          readOnly: true
+          
           description: User ID for the staff that is responsible for the order and should get credit for it.
         registerid: 
           type: string
-          readOnly: true
+          
         warehouseid: 
           type: string
           nullable: true
@@ -2903,7 +3267,7 @@ components:
         orderdeliveryid:
           type: integer
           description: The order delivery ID is unique for a system.
-          readOnly: true
+          
         state:
           type: string
           description: >-
@@ -2914,7 +3278,7 @@ components:
         orderid:
           type: integer
           description: The order ID for which this delivery was made.
-          readOnly: true
+          
         warehouseid:
           type: integer
           description: The warehouse ID for this order delivery.
@@ -2934,16 +3298,16 @@ components:
           type: string
           format: date-time
           description: The date of the order delivery (when the state was set to delivered).
-          readOnly: true
+          
         datecancelled:
           type: string
           format: date-time
           description: The date the delivery was cancelled, or null if not cancelled.
-          readOnly: true
+          
         pluginname:
           type: string
           description: Name of plugin that handles this delivery.
-          readOnly: true
+          
         orderdeliveryitems:
           type: array
           description: Array of delivery items for this delivery. See OrderDeliveryItem for fields.
@@ -2959,11 +3323,11 @@ components:
         orderdeliveryitemid:
           type: integer
           description: Order delivery item ID.
-          readOnly: true
+          
         orderdeliveryid:
           type: integer
           description: Order delivery ID.
-          readOnly: true
+          
         orderitemid:
           type: integer
           description: Order item ID.
@@ -3018,12 +3382,12 @@ components:
       properties:
         orderitemid: 
           type: integer
-          readOnly: true
+          
         orderitemtype: 
           $ref: '#/components/schemas/OrderItemType'
         productid: 
           type: integer
-          readOnly: true
+          
         productname: 
           type: string
         sku: 
@@ -3043,7 +3407,7 @@ components:
           nullable: true
         moneynetpriceperunit: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
         moneypriceorg: 
           $ref: "#/components/schemas/Money"
           deprecated: true
@@ -3053,10 +3417,10 @@ components:
           type: string
         moneyitemtotal_net: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
         moneyitemtotal_vat: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
         vouchercode: 
           type: string
         vouchername: 
@@ -3068,13 +3432,13 @@ components:
           deprecated: true
         moneyoriginalprice: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
         moneydiscountedprice: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
         moneydiscount: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
         salestaxes: 
           type: array
           items: 
@@ -3086,10 +3450,10 @@ components:
               type: string
         decimalquantitytotal: 
           type: string
-          readOnly: true
+          
         moneynetpriceperquantity: 
           $ref: "#/components/schemas/Money"
-          readOnly: true
+          
         moneyrowprice:
           $ref: "#/components/schemas/Money"
         moneyrowdiscount:
@@ -3135,11 +3499,11 @@ components:
           type: string
           format: date-time
           description: Date and time of log entry.
-          readOnly: true
+          
         orderid:
           type: integer
           description: Order ID.
-          readOnly: true
+          
         orderlogtypeid:
           $ref: '#/components/schemas/OrderLogType'
           description: >-
@@ -3895,7 +4259,7 @@ components:
         store_zreport_id:
           type: string
           description: UUID for the Store Z-report.
-          readOnly: true
+          
         currency_code:
           type: string
           description: Currency for the report (ISO 4217, alpha-3 uppercased).
@@ -4166,12 +4530,12 @@ components:
         transactionid:
           type: string
           description: The unique id of this transaction.
-          readOnly: true
+          
         date:
           type: string
           format: date-time
           description: The date that this transaction occurred.
-          readOnly: true
+          
         moneyamount:
           $ref: '#/components/schemas/Money'
           description: Money added or subtracted by this transaction.
@@ -4201,29 +4565,29 @@ components:
           description: The unique id of the gift card (card number).
         cardnumber_display:
           type: string
-          readOnly: true
+          
           description: The masked card number, used for public display.
         redeemable:
           type: boolean
-          readOnly: true
+          
           description: If true, the gift card is active for redeem with the moneyamount available.
         date_expires:
           type: string
           format: date-time
-          readOnly: true
+          
           description: The date for the expiration of the gift card. (If passed, the gift card is invalid)
         date_created:
           type: string
           format: date-time
-          readOnly: true
+          
           description: The date that the gift card was created.
         moneyamount:
           $ref: '#/components/schemas/Money'
-          readOnly: true
+          
           description: Current monetary value of the gift card.
         requirespin:
           type: boolean
-          readOnly: true
+          
           description: Indicates if PIN is required when redeeming the gift card.
         transactions:
           type: array
@@ -4286,6 +4650,151 @@ components:
             name: Printout
           - value: sms
             name: SMS
+    WarehouseUseType:
+      type: integer
+      description: |
+        Describes the use type of the warehouse.
+        - 10: Front
+        - 20: Back
+        - 30: Demo
+        - 40: Reclaim
+        - 50: External
+      enum:
+        - 10
+        - 20
+        - 30
+        - 40
+        - 50
+      x-ms-enum:
+        name: WarehouseUseType
+        modelAsString: false
+        values:
+          - value: 10
+            name: Front
+          - value: 20
+            name: Back
+          - value: 30
+            name: Demo
+          - value: 40
+            name: Reclaim
+          - value: 50
+            name: External
+    WarehouseType:
+      type: integer
+      description: |
+        Describes the warehouse type.
+        - 10: FIFO
+        - 20: Virtual
+      enum:
+        - 10
+        - 20
+      x-ms-enum:
+        name: WarehouseType
+        modelAsString: false
+        values:
+          - value: 10
+            name: FIFO
+          - value: 20
+            name: Virtual
+    WarehouseItem:
+      type: object
+      description: |
+        Contains the current state of a product's stock count and stock value.
+        Also has the bin location within the warehouse and the reordering threshold.
+      required:
+        - sku
+      properties:
+        warehouseitemid:
+          type: integer
+          description: The unique ID of the warehouseitem.
+        sku:
+          type: string
+          description: The SKU for this stock item.
+        binlocation:
+          type: string
+          description: Bin location for the stock for this warehouse.
+        decimalthreshold:
+          type: string
+          description: Threshold for ordering new stock.
+        decimaltotal:
+          type: string
+          description: Current stock level for this warehouseitem. (Read Only if not warehousetype Virtual)
+        moneytotal:
+          $ref: '#/components/schemas/Money'
+        datelastmodified:
+          type: string
+          format: date-time
+          description: The last date this warehouseitem has been part of a transaction.
+        datelaststocktaking:
+          type: string
+          format: date-time
+          description: The last date this warehouseitem has been part of a stocktaking transaction.
+        decimalreserved:
+          type: string
+          description: Reserved stock level for this warehouseitem.
+        decimalavailable:
+          type: string
+          description: Available stock level for this warehouseitem.
+    Warehouse:
+      type: object
+      description: A location for stock-enabled goods.
+      required:
+        - usetype
+        - currencycode
+        - name
+      properties:
+        warehouseid:
+          type: integer
+          description: The unique ID of the warehouse.
+        warehousetype:
+          $ref: '#/components/schemas/WarehouseType'
+        usetype:
+          $ref: '#/components/schemas/WarehouseUseType'
+        storeid:
+          type: integer
+          nullable: true
+          description: The ID of the store that the warehouse belongs to or null if not connected to a store.
+        sellable:
+          type: boolean
+          description: Determines if the warehouse contains sellable stock.
+        currencycode:
+          type: string
+          minLength: 3
+          maxLength: 3
+          description: The currency code used for the warehouse (3-letter ISO 4217).
+        name:
+          type: string
+          description: The name of the warehouse.
+        address:
+          type: string
+          description: Address for the warehouse.
+        address2:
+          type: string
+          description: Address 2 for the warehouse.
+        zip:
+          type: string
+          description: Zip for the warehouse.
+        city:
+          type: string
+          description: City for the warehouse.
+        state:
+          type: string
+          description: State for the warehouse.
+        countryid:
+          type: string
+          minLength: 2
+          maxLength: 2
+          description: Country ID for the warehouse (2-letter ISO 3166).
+        externalid:
+          type: string
+          description: External ID for the warehouse.
+
+
+
+
+
+
+
     Event:
       type: object
       required:
@@ -4297,7 +4806,6 @@ components:
       properties:
         event_id:
           type: string
-          format: uuid
           description: UUID for the event
         event_type:
           type: string
@@ -4316,7 +4824,7 @@ components:
             modelAsString: false
             values:
               - value: order
-                name: Prder
+                name: Order
               - value: order-delivery
                 name: OrderDelivery
               - value: booking
@@ -4516,7 +5024,6 @@ components:
       properties:
         store_zreport_id:
           type: string
-          format: uuid
           description: UUID for the Store Z-report
         store_id:
           type: string
